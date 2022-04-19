@@ -254,6 +254,24 @@ class BinshopsrestCreateorderModuleFrontController extends AbstractCartRESTContr
 
         $psdata['setAddresses'] = true;
 
+        /**
+         * step 6
+         * set check out carrier
+         */
+        $delivery_option = [];
+        $delivery_option[$shipping_address->id] = $this->_shipping_lines['carrire_id'];
+        $session->setDeliveryOption($delivery_option);
+        $session->getSelectedDeliveryOption();
+
+        $psdata['setCarrier'] = true;
+
+        /**
+         * step 6
+         * checkout
+         */
+        $this->cartChecksum = new CartChecksum(new AddressChecksum());
+        $this->bootstrap();
+
 
         $this->ajaxRender(json_encode([
             'success' => true,
