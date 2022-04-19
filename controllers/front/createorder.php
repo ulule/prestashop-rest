@@ -9,6 +9,8 @@
  *
  */
 
+use PrestaShop\PrestaShop\Adapter\Product\PriceFormatter;
+
 require_once dirname(__FILE__) . '/../AbstractCartRESTController.php';
 
 class BinshopsrestCreateorderModuleFrontController extends AbstractCartRESTController
@@ -211,7 +213,7 @@ class BinshopsrestCreateorderModuleFrontController extends AbstractCartRESTContr
         }
 
         /**
-         * step 4
+         * step 5
          * add to cart
          */
 
@@ -239,7 +241,18 @@ class BinshopsrestCreateorderModuleFrontController extends AbstractCartRESTContr
         // }
         $this->updateCart();
         $cartProducts = $this->context->cart->getProducts();
+        $psdata['addToCart'] = true;
 
+        /**
+         * step 6
+         * set check out addresses
+         */
+        $session = $this->getCheckoutSession();
+
+        $session->setIdAddressDelivery($shipping_address->id);
+        $session->setIdAddressInvoice($billing_address->id);
+
+        $psdata['setAddresses'] = true;
 
 
         $this->ajaxRender(json_encode([
@@ -324,5 +337,22 @@ class BinshopsrestCreateorderModuleFrontController extends AbstractCartRESTContr
             ]));
             die;
         }
+    }
+
+    protected function getCheckoutSession()
+    {
+        $deliveryOptionsFinder = new DeliveryOptionsFinder(
+            $this->context,
+            $this->getTranslator(),
+            $this->objectPresenter,
+            new PriceFormatter()
+        );
+
+        $session = new CheckoutSession(
+            $this->context,
+            $deliveryOptionsFinder
+        );
+
+        return $session;
     }
 }
