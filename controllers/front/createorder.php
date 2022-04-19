@@ -223,9 +223,9 @@ class BinshopsrestCreateorderModuleFrontController extends AbstractCartRESTContr
         $_GET['update'] = 1;
         $_GET['op'] = 'up';
         $_GET['action'] = 'update';
-        $_GET['id_product'] = $this->_line_item['product_id']; 
-        $_GET['id_product_attribute'] = $this->_line_item['id_product_attribute']; 
-        $_GET['qty'] = $this->_line_item['quantity'];
+        $_GET['id_product'] = $this->_line_item[0]['product_id']; 
+        $_GET['id_product_attribute'] = $this->_line_item[0]['id_product_attribute']; 
+        $_GET['qty'] = $this->_line_item[0]['quantity'];
 
         // foreach($this->_line_items as $item){
         //     //needed in updateCart
