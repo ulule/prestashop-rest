@@ -30,14 +30,6 @@ class BinshopsrestCreateorderModuleFrontController extends AbstractCartRESTContr
         $this->_shipping_address = Tools::getValue('shipping_address');
         $this->_shipping_lines = Tools::getValue('shipping_lines');
         $this->_note = Tools::getValue('note');
-         
-        //needed in updateCart
-        $_GET['update'] = 1;
-        $_GET['op'] = 'up';
-        $_GET['action'] = 'update';
-        $_GET['id_product'] = $this->_line_items[0]['product_id']; 
-        $_GET['id_product_attribute'] = $this->_line_items[0]['id_product_attribute']; 
-        $_GET['qty'] = $this->_line_items[0]['quantity'];
 
         parent::init();
     }
@@ -223,9 +215,31 @@ class BinshopsrestCreateorderModuleFrontController extends AbstractCartRESTContr
          * add to cart
          */
 
-        $this->updateCart();
-
+        
         $cartProducts = $this->context->cart->getProducts();
+
+        $_GET['update'] = 1;
+        $_GET['op'] = 'up';
+        $_GET['action'] = 'update';
+        $_GET['id_product'] = $this->_line_item['product_id']; 
+        $_GET['id_product_attribute'] = $this->_line_item['id_product_attribute']; 
+        $_GET['qty'] = $this->_line_item['quantity'];
+
+        // foreach($this->_line_items as $item){
+        //     //needed in updateCart
+        //     $_GET['update'] = 1;
+        //     $_GET['op'] = 'up';
+        //     $_GET['action'] = 'update';
+        //     $_GET['id_product'] = $item['product_id']; 
+        //     $_GET['id_product_attribute'] = $item['id_product_attribute']; 
+        //     $_GET['qty'] = $item['quantity'];
+             
+        //     $this->updateCart();
+        //     $cartProducts = $this->context->cart->getProducts();
+        // }
+        $this->updateCart();
+        $cartProducts = $this->context->cart->getProducts();
+
 
 
         $this->ajaxRender(json_encode([
