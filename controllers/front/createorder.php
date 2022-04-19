@@ -83,13 +83,141 @@ class BinshopsrestCreateorderModuleFrontController extends AbstractCartRESTContr
 
         //actually no need to do this, already logged in
         $customer = $this->context->customer;
-        
+        $psdata['logged'] = true;
+
         /**
          * step 3
-         * create address
+         * create billing address
+         */
+        $id_country = Country::getByIso($this->_billing_address['country_code']);
+        $country = new Country($id_country);
+        $availableCountries = Country::getCountries($this->context->language->id, true);
+        $formatter = new CustomerAddressFormatter(
+            $country,
+            $this->getTranslator(),
+            $availableCountries
+        );
+        $country = $formatter->getCountry();
+        if ($country->need_zip_code){
+            if (!$country->checkZipCode($this->_billing_address['zip'])) {
+                $this->ajaxRender(json_encode([
+                    'success' => false,
+                    'code' => 303,
+                    'psdata' => [],
+                    'message' => $this->translator->trans(
+                        'Invalid postcode - should look like "%zipcode%"',
+                        ['%zipcode%' => $country->zip_code_format],
+                        'Shop.Forms.Errors'
+                    )
+                ]));
+                die;
+            }
+        }
+
+        $billing_address = new Address();
+        $billing_address->alias = 'Alias';
+        $billing_address->id_country = $id_country;
+        $billing_address->country = $country->name[$this->context->language->id];
+        $billing_address->postcode = $this->_billing_address['zip'];
+        $billing_address->city = $this->_billing_address['city'];
+        $billing_address->address1 = $this->_billing_address['address1'];
+        $billing_address->address2 = $this->_billing_address['address2'];
+        $billing_address->firstname = $this->_billing_address['first_name'];
+        $billing_address->lastname = $this->_billing_address['last_name'];
+        $billing_address->id_state = State::getIdByIso($this->_billing_address['province'], $id_country);
+        
+        // $address->company = Tools::getValue('company');
+        // $address->other = Tools::getValue('other');
+        // $address->phone = Tools::getValue('phone');
+        // $address->phone_mobile = Tools::getValue('phone_mobile');
+        // $address->vat_number = Tools::getValue('vat_number');
+
+        Hook::exec('actionSubmitCustomerAddressForm', ['address' => &$billing_address]);
+
+        $persister = new CustomerAddressPersister(
+            $this->context->customer,
+            $this->context->cart,
+            Tools::getToken(true, $this->context)
+        );
+
+        $saved_billing_address = $persister->save(
+            $billing_address,
+            Tools::getToken(true, $this->context)
+        );
+
+        if (!$saved_billing_address) {
+            $this->ajaxRender(json_encode([
+                'success' => false,
+                'code' => 302,
+                'psdata' => "internal-server-error-save-billing-address"
+            ]));
+            die;
+        }
+
+        /**
+         * step 4
+         * create shipping address
          */
 
-        $address = 
+        $id_country = Country::getByIso($this->_shipping_address['country_code']);
+        $country = new Country($id_country);
+        $availableCountries = Country::getCountries($this->context->language->id, true);
+        $formatter = new CustomerAddressFormatter(
+            $country,
+            $this->getTranslator(),
+            $availableCountries
+        );
+        $country = $formatter->getCountry();
+        if ($country->need_zip_code){
+            if (!$country->checkZipCode($this->_shipping_address['zip'])) {
+                $this->ajaxRender(json_encode([
+                    'success' => false,
+                    'code' => 303,
+                    'psdata' => [],
+                    'message' => $this->translator->trans(
+                        'Invalid postcode - should look like "%zipcode%"',
+                        ['%zipcode%' => $country->zip_code_format],
+                        'Shop.Forms.Errors'
+                    )
+                ]));
+                die;
+            }
+        }
+
+        $shipping_address = new Address();
+        $shipping_address->alias = 'Alias';
+        $shipping_address->id_country = $id_country;
+        $shipping_address->country = $country->name[$this->context->language->id];
+        $shipping_address->postcode = $this->_shipping_address['zip'];
+        $shipping_address->city = $this->_shipping_address['city'];
+        $shipping_address->address1 = $this->_shipping_address['address1'];
+        $shipping_address->address2 = $this->_shipping_address['address2'];
+        $shipping_address->firstname = $this->_shipping_address['first_name'];
+        $shipping_address->lastname = $this->_shipping_address['last_name'];
+        $shipping_address->id_state = State::getIdByIso($this->_shipping_address['province'], $id_country);
+
+
+        Hook::exec('actionSubmitCustomerAddressForm', ['address' => &$shipping_address]);
+
+        $persister = new CustomerAddressPersister(
+            $this->context->customer,
+            $this->context->cart,
+            Tools::getToken(true, $this->context)
+        );
+
+        $saved_shipping_address = $persister->save(
+            $shipping_address,
+            Tools::getToken(true, $this->context)
+        );
+
+        if (!$saved_shipping_address) {
+            $this->ajaxRender(json_encode([
+                'success' => false,
+                'code' => 302,
+                'psdata' => "internal-server-error-save-shipping-address"
+            ]));
+            die;
+        }
 
         /**
          * step 4
