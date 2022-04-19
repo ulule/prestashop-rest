@@ -125,12 +125,6 @@ class BinshopsrestCreateorderModuleFrontController extends AbstractCartRESTContr
         $billing_address->firstname = $this->_billing_address['first_name'];
         $billing_address->lastname = $this->_billing_address['last_name'];
         $billing_address->id_state = State::getIdByIso($this->_billing_address['province'], $id_country);
-        
-        // $address->company = Tools::getValue('company');
-        // $address->other = Tools::getValue('other');
-        // $address->phone = Tools::getValue('phone');
-        // $address->phone_mobile = Tools::getValue('phone_mobile');
-        // $address->vat_number = Tools::getValue('vat_number');
 
         Hook::exec('actionSubmitCustomerAddressForm', ['address' => &$billing_address]);
 
@@ -144,6 +138,9 @@ class BinshopsrestCreateorderModuleFrontController extends AbstractCartRESTContr
             $billing_address,
             Tools::getToken(true, $this->context)
         );
+
+        $psdata['saved_billing_address'] = $saved_billing_address;
+
 
         if (!$saved_billing_address) {
             $this->ajaxRender(json_encode([
@@ -209,6 +206,8 @@ class BinshopsrestCreateorderModuleFrontController extends AbstractCartRESTContr
             $shipping_address,
             Tools::getToken(true, $this->context)
         );
+
+        $psdata['saved_shipping_address'] = $saved_shipping_address;
 
         if (!$saved_shipping_address) {
             $this->ajaxRender(json_encode([
