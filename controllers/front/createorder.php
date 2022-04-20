@@ -310,7 +310,7 @@ class BinshopsrestCreateorderModuleFrontController extends AbstractCartRESTContr
 
             $this->module = Module::getInstanceByName('binshopsrest');
 
-            $this->module->validateOrder($cart->id, Configuration::get('PS_OS_BANKWIRE'), $total, $this->module->displayName, NULL, $mailVars, (int)$this->context->currency->id, false, $customer->secure_key);
+            $this->module->validateOrder($cart->id, 2, $total, $this->module->displayName, NULL, $mailVars, (int)$this->context->currency->id, false, $customer->secure_key);
 
         }else{
             $this->ajaxRender(json_encode([
