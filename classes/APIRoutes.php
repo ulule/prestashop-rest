@@ -302,6 +302,15 @@ class APIRoutes
                     'module' => 'binshopsrest'
                 ]
             ],
+            'module-binshopsrest-getorder' => [
+                'rule' => 'rest/getorder',
+                'keywords' => [],
+                'controller' => 'getorder',
+                'params' => [
+                    'fc' => 'module',
+                    'module' => 'binshopsrest'
+                ]
+            ],
         ];
     }
 }
