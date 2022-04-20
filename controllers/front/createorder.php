@@ -58,6 +58,20 @@ class BinshopsrestCreateorderModuleFrontController extends AbstractCartRESTContr
 
     protected function processPostRequest()
     {
+        //Step 0 - Create Cart
+        $cart = new Cart();
+        $cart->id_lang = (int) Configuration::get('PS_LANG_DEFAULT');
+        $cart->id_currency = (int) Configuration::get('PS_CURRENCY_DEFAULT');
+        $cart->id_guest = (int) 0;
+        $cart->id_shop_group = (int) $this->context->shop->id_shop_group;
+        $cart->id_shop = $this->context->shop->id;
+        $cart->id_address_delivery = 0;
+        $cart->id_address_invoice = 0;
+
+        // Needed if the merchant want to give a free product to every visitors
+        $cart->save();
+        $this->context->cart = $cart;
+
         $psdata = [];
 
         /**
@@ -257,6 +271,8 @@ class BinshopsrestCreateorderModuleFrontController extends AbstractCartRESTContr
         $cartProducts = $this->context->cart->getProducts();
         $psdata['addToCart'] = true;
 
+        $this->context->cart->checkAndUpdateAddresses();
+
         /**
          * step 6
          * set check out addresses
@@ -284,13 +300,31 @@ class BinshopsrestCreateorderModuleFrontController extends AbstractCartRESTContr
          * process payment
          */
         if (Validate::isLoadedObject($this->context->cart) && $this->context->cart->OrderExists() == false){
-            $this->processRESTPayment();
-        }
+            $total = (float)$cart->getOrderTotal(true, Cart::BOTH);
 
+            $mailVars = array(
+                '{bankwire_owner}' => Configuration::get('BANK_WIRE_OWNER'),
+                '{bankwire_details}' => nl2br(Configuration::get('BANK_WIRE_DETAILS')),
+                '{bankwire_address}' => nl2br(Configuration::get('BANK_WIRE_ADDRESS'))
+            );
+
+            $this->module = Module::getInstanceByName('binshopsrest');
+
+            $this->module->validateOrder($cart->id, Configuration::get('PS_OS_BANKWIRE'), $total, $this->module->displayName, NULL, $mailVars, (int)$this->context->currency->id, false, $customer->secure_key);
+
+        }else{
+            $this->ajaxRender(json_encode([
+                'success' => false,
+                'message' => 'Order already exists',
+                'psdata' => null,
+            ]));
+            die;
+        }
 
         $this->ajaxRender(json_encode([
             'success' => true,
-            'message' => '',
+            'code' => 200,
+            'message' => 'order successfully created',
             'psdata' => $psdata,
         ]));
         die;
@@ -387,48 +421,5 @@ class BinshopsrestCreateorderModuleFrontController extends AbstractCartRESTContr
         );
 
         return $session;
-    }
-
-    protected function processRESTPayment(){
-        $cart = $this->context->cart;
-
-        // Check that this payment option is still available in case the customer changed his address just before the end of the checkout process
-        $authorized = false;
-        foreach (Module::getPaymentModules() as $module)
-            if ($module['name'] == 'ps_wirepayment')
-            {
-                $authorized = true;
-                break;
-            }
-        if (!$authorized){
-            $this->ajaxRender(json_encode([
-                'success' => false,
-                'code' => 303,
-                'message' => 'This payment method is not available.'
-            ]));
-            die;
-        }
-
-        $customer = new Customer($cart->id_customer);
-        if (!Validate::isLoadedObject($customer)){
-            $this->ajaxRender(json_encode([
-                'success' => false,
-                'code' => 301,
-                'message' => 'payment processing failed'
-            ]));
-            die;
-        }
-
-        $currency = $this->context->currency;
-        $total = (float)$cart->getOrderTotal(true, Cart::BOTH);
-        $mailVars = array(
-            '{bankwire_owner}' => Configuration::get('BANK_WIRE_OWNER'),
-            '{bankwire_details}' => nl2br(Configuration::get('BANK_WIRE_DETAILS')),
-            '{bankwire_address}' => nl2br(Configuration::get('BANK_WIRE_ADDRESS'))
-        );
-
-        $ps_wirepayment = Module::getInstanceByName('ps_wirepayment');
-
-        $ps_wirepayment->validateOrder($cart->id, Configuration::get('PS_OS_BANKWIRE'), $total, $ps_wirepayment->displayName, NULL, $mailVars, (int)$currency->id, false, $customer->secure_key);
     }
 }

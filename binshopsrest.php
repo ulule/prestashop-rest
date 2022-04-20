@@ -15,7 +15,7 @@ if (!defined('_PS_VERSION_')) {
 
 require_once dirname(__FILE__) . '/classes/APIRoutes.php';
 
-class Binshopsrest extends Module
+class Binshopsrest extends PaymentModule
 {
     protected $config_form = false;
 
