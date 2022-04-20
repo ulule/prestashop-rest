@@ -13,7 +13,7 @@
 require_once dirname(__FILE__) . '/../AbstractRESTController.php';
 
 
-class BinshopsrestGetorderModuleFrontController extends AbstractRESTController
+class BinshopsrestGetordersModuleFrontController extends AbstractRESTController
 {
     protected function processGetRequest()
     {
@@ -32,7 +32,7 @@ class BinshopsrestGetorderModuleFrontController extends AbstractRESTController
             'SELECT id_order
             FROM ' . _DB_PREFIX_ . 'orders
             LIMIT ' . $limit .  '
-            OFFSET ' . $offset 
+            OFFSET ' . $offset
         );
 
         foreach($orders as &$order){

@@ -302,10 +302,10 @@ class APIRoutes
                     'module' => 'binshopsrest'
                 ]
             ],
-            'module-binshopsrest-getorder' => [
-                'rule' => 'rest/getorder',
+            'module-binshopsrest-getorders' => [
+                'rule' => 'rest/getorders',
                 'keywords' => [],
-                'controller' => 'getorder',
+                'controller' => 'getorders',
                 'params' => [
                     'fc' => 'module',
                     'module' => 'binshopsrest'
