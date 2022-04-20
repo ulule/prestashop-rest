@@ -23,8 +23,19 @@ class BinshopsrestCreateorderModuleFrontController extends AbstractCartRESTContr
     protected $_note;
 
     public function init(){
+        header('Content-Type: ' . "application/json");
+
+        if (Tools::getValue('token') !== Configuration::get('BINSHOPSREST_API_TOKEN')){
+            $this->ajaxRender(json_encode([
+                'success' => false,
+                'code' => 340,
+                'psdata' => "Invalid Token"
+            ]));
+            die;
+        }
+
         $_POST = json_decode(Tools::file_get_contents('php://input'), true);
-        
+
         //get payload
         $this->_customer = Tools::getValue('customer');
         $this->_billing_address = Tools::getValue('billing_address');
@@ -44,11 +55,11 @@ class BinshopsrestCreateorderModuleFrontController extends AbstractCartRESTContr
         ]));
         die;
     }
-    
+
     protected function processPostRequest()
     {
         $psdata = [];
-        
+
         /**
          * step 1
          * create customer
@@ -66,7 +77,7 @@ class BinshopsrestCreateorderModuleFrontController extends AbstractCartRESTContr
         $customer->lastname = $this->_customer['last_name'];
 
         $customer->note = $this->_note;
-        
+
         // for later use we can fill password here
         $password = '';
 
@@ -222,8 +233,8 @@ class BinshopsrestCreateorderModuleFrontController extends AbstractCartRESTContr
         $_GET['update'] = 1;
         $_GET['op'] = 'up';
         $_GET['action'] = 'update';
-        // $this->id_product = $this->_line_items[0]['product_id']; 
-        // $this->id_product_attribute = $this->_line_items[0]['id_product_attribute']; 
+        // $this->id_product = $this->_line_items[0]['product_id'];
+        // $this->id_product_attribute = $this->_line_items[0]['id_product_attribute'];
         // $this->qty = $this->_line_items[0]['quantity'];
 
         foreach($this->_line_items as $item){
@@ -231,14 +242,14 @@ class BinshopsrestCreateorderModuleFrontController extends AbstractCartRESTContr
             // $_GET['update'] = 1;
             // $_GET['op'] = 'up';
             // $_GET['action'] = 'update';
-            $this->id_product = $item['product_id']; 
-            $this->id_product_attribute = $item['id_product_attribute']; 
+            $this->id_product = $item['product_id'];
+            $this->id_product_attribute = $item['id_product_attribute'];
             $this->qty = $item['quantity'];
-            // $this->id_product = $this->_line_items[0]['product_id']; 
-            // $this->id_product_attribute = $this->_line_items[0]['id_product_attribute']; 
+            // $this->id_product = $this->_line_items[0]['product_id'];
+            // $this->id_product_attribute = $this->_line_items[0]['id_product_attribute'];
             // $this->qty = $this->_line_items[0]['quantity'];
-    
-             
+
+
             $this->updateCart();
             // $cartProducts = $this->context->cart->getProducts();
         }
