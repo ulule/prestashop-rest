@@ -15,7 +15,7 @@ if (!defined('_PS_VERSION_')) {
 
 require_once dirname(__FILE__) . '/classes/APIRoutes.php';
 
-class Binshopsrest extends Module
+class Binshopsrest extends PaymentModule
 {
     protected $config_form = false;
 
@@ -83,7 +83,7 @@ class Binshopsrest extends Module
 
         $output = $this->context->smarty->fetch($this->local_path . 'views/templates/admin/configure.tpl');
 
-        return $output;
+        return $output.$this->renderForm();
     }
 
     /**
@@ -127,40 +127,16 @@ class Binshopsrest extends Module
                 ),
                 'input' => array(
                     array(
-                        'type' => 'switch',
-                        'label' => $this->l('Live mode'),
-                        'name' => 'BINSHOPSREST_LIVE_MODE',
-                        'is_bool' => true,
-                        'desc' => $this->l('Use this module in live mode'),
-                        'values' => array(
-                            array(
-                                'id' => 'active_on',
-                                'value' => true,
-                                'label' => $this->l('Enabled')
-                            ),
-                            array(
-                                'id' => 'active_off',
-                                'value' => false,
-                                'label' => $this->l('Disabled')
-                            )
-                        ),
-                    ),
-                    array(
                         'col' => 3,
                         'type' => 'text',
-                        'prefix' => '<i class="icon icon-envelope"></i>',
-                        'desc' => $this->l('Enter a valid email address'),
-                        'name' => 'BINSHOPSREST_ACCOUNT_EMAIL',
-                        'label' => $this->l('Email'),
-                    ),
-                    array(
-                        'type' => 'password',
-                        'name' => 'BINSHOPSREST_ACCOUNT_PASSWORD',
-                        'label' => $this->l('Password'),
+                        'prefix' => '<i class="icon-key"></i>',
+                        'desc' => $this->l('Copy this token and send it as request parameter in your requests'),
+                        'name' => 'BINSHOPSREST_API_TOKEN',
+                        'label' => $this->l('API Token'),
                     ),
                 ),
                 'submit' => array(
-                    'title' => $this->l('Save'),
+                    'title' => $this->l('Generate'),
                 ),
             ),
         );
@@ -173,7 +149,7 @@ class Binshopsrest extends Module
     {
         return array(
             'BINSHOPSREST_LIVE_MODE' => Configuration::get('BINSHOPSREST_LIVE_MODE', true),
-            'BINSHOPSREST_ACCOUNT_EMAIL' => Configuration::get('BINSHOPSREST_ACCOUNT_EMAIL', 'contact@prestashop.com'),
+            'BINSHOPSREST_API_TOKEN' => Configuration::get('BINSHOPSREST_API_TOKEN', 'contact@prestashop.com'),
             'BINSHOPSREST_ACCOUNT_PASSWORD' => Configuration::get('BINSHOPSREST_ACCOUNT_PASSWORD', null),
         );
     }
@@ -183,11 +159,14 @@ class Binshopsrest extends Module
      */
     protected function postProcess()
     {
-        $form_values = $this->getConfigFormValues();
+        $token = $this->generateToken();
+        Configuration::updateValue('BINSHOPSREST_API_TOKEN', $token);
 
-        foreach (array_keys($form_values) as $key) {
-            Configuration::updateValue($key, Tools::getValue($key));
-        }
+//        $form_values = $this->getConfigFormValues();
+//
+//        foreach (array_keys($form_values) as $key) {
+//            Configuration::updateValue($key, Tools::getValue($key));
+//        }
     }
 
     /**
@@ -213,5 +192,24 @@ class Binshopsrest extends Module
     public function hookModuleRoutes()
     {
         return APIRoutes::getRoutes();
+    }
+
+    public function generateToken(){
+        return $this->random_str(32);
+    }
+
+    function random_str(
+        int $length = 64,
+        string $keyspace = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    ): string {
+        if ($length < 1) {
+            throw new \RangeException("Length must be a positive integer");
+        }
+        $pieces = [];
+        $max = mb_strlen($keyspace, '8bit') - 1;
+        for ($i = 0; $i < $length; ++$i) {
+            $pieces []= $keyspace[random_int(0, $max)];
+        }
+        return implode('', $pieces);
     }
 }
