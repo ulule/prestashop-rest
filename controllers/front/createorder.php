@@ -64,6 +64,8 @@ class BinshopsrestCreateorderModuleFrontController extends AbstractCartRESTContr
         $customer->email = $this->_customer['email'];
         $customer->firstname = $this->_customer['first_name'];
         $customer->lastname = $this->_customer['last_name'];
+
+        $customer->note = $this->_note;
         
         // for later use we can fill password here
         $password = '';
@@ -216,30 +218,31 @@ class BinshopsrestCreateorderModuleFrontController extends AbstractCartRESTContr
          * step 5
          * add to cart
          */
-
-        
         $cartProducts = $this->context->cart->getProducts();
-
         $_GET['update'] = 1;
         $_GET['op'] = 'up';
         $_GET['action'] = 'update';
-        $_GET['id_product'] = $this->_line_item[0]['product_id']; 
-        $_GET['id_product_attribute'] = $this->_line_item[0]['id_product_attribute']; 
-        $_GET['qty'] = $this->_line_item[0]['quantity'];
+        // $this->id_product = $this->_line_items[0]['product_id']; 
+        // $this->id_product_attribute = $this->_line_items[0]['id_product_attribute']; 
+        // $this->qty = $this->_line_items[0]['quantity'];
 
-        // foreach($this->_line_items as $item){
-        //     //needed in updateCart
-        //     $_GET['update'] = 1;
-        //     $_GET['op'] = 'up';
-        //     $_GET['action'] = 'update';
-        //     $_GET['id_product'] = $item['product_id']; 
-        //     $_GET['id_product_attribute'] = $item['id_product_attribute']; 
-        //     $_GET['qty'] = $item['quantity'];
+        foreach($this->_line_items as $item){
+            //needed in updateCart
+            // $_GET['update'] = 1;
+            // $_GET['op'] = 'up';
+            // $_GET['action'] = 'update';
+            $this->id_product = $item['product_id']; 
+            $this->id_product_attribute = $item['id_product_attribute']; 
+            $this->qty = $item['quantity'];
+            // $this->id_product = $this->_line_items[0]['product_id']; 
+            // $this->id_product_attribute = $this->_line_items[0]['id_product_attribute']; 
+            // $this->qty = $this->_line_items[0]['quantity'];
+    
              
-        //     $this->updateCart();
-        //     $cartProducts = $this->context->cart->getProducts();
-        // }
-        $this->updateCart();
+            $this->updateCart();
+            // $cartProducts = $this->context->cart->getProducts();
+        }
+        // $this->updateCart();
         $cartProducts = $this->context->cart->getProducts();
         $psdata['addToCart'] = true;
 
@@ -259,18 +262,19 @@ class BinshopsrestCreateorderModuleFrontController extends AbstractCartRESTContr
          * set check out carrier
          */
         $delivery_option = [];
-        $delivery_option[$shipping_address->id] = $this->_shipping_lines['carrire_id'];
+        $delivery_option[$shipping_address->id] = $this->_shipping_lines['carrier_id'] . ',';
         $session->setDeliveryOption($delivery_option);
         $session->getSelectedDeliveryOption();
 
         $psdata['setCarrier'] = true;
 
         /**
-         * step 6
-         * checkout
+         * step 7
+         * process payment
          */
-        $this->cartChecksum = new CartChecksum(new AddressChecksum());
-        $this->bootstrap();
+        if (Validate::isLoadedObject($this->context->cart) && $this->context->cart->OrderExists() == false){
+            $this->processRESTPayment();
+        }
 
 
         $this->ajaxRender(json_encode([
@@ -374,62 +378,46 @@ class BinshopsrestCreateorderModuleFrontController extends AbstractCartRESTContr
         return $session;
     }
 
-    protected function bootstrap()
-    {
-        $translator = $this->getTranslator();
+    protected function processRESTPayment(){
+        $cart = $this->context->cart;
 
-        $session = $this->getCheckoutSession();
-
-        $this->checkoutProcess = new CheckoutProcess(
-            $this->context,
-            $session
-        );
-
-        $this->checkoutProcess
-            ->addStep(new CheckoutPersonalInformationStep(
-                $this->context,
-                $translator,
-                $this->makeLoginForm(),
-                $this->makeCustomerForm()
-            ))
-            ->addStep(new CheckoutAddressesStep(
-                $this->context,
-                $translator,
-                $this->makeAddressForm()
-            ));
-
-        if (!$this->context->cart->isVirtualCart()) {
-            $checkoutDeliveryStep = new CheckoutDeliveryStep(
-                $this->context,
-                $translator
-            );
-
-            $checkoutDeliveryStep
-                ->setRecyclablePackAllowed((bool)Configuration::get('PS_RECYCLABLE_PACK'))
-                ->setGiftAllowed((bool)Configuration::get('PS_GIFT_WRAPPING'))
-                ->setIncludeTaxes(
-                    !Product::getTaxCalculationMethod((int)$this->context->cart->id_customer)
-                    && (int)Configuration::get('PS_TAX')
-                )
-                ->setDisplayTaxesLabel((Configuration::get('PS_TAX') && !Configuration::get('AEUC_LABEL_TAX_INC_EXC')))
-                ->setGiftCost(
-                    $this->context->cart->getGiftWrappingPrice(
-                        $checkoutDeliveryStep->getIncludeTaxes()
-                    )
-                );
-
-            $this->checkoutProcess->addStep($checkoutDeliveryStep);
+        // Check that this payment option is still available in case the customer changed his address just before the end of the checkout process
+        $authorized = false;
+        foreach (Module::getPaymentModules() as $module)
+            if ($module['name'] == 'ps_wirepayment')
+            {
+                $authorized = true;
+                break;
+            }
+        if (!$authorized){
+            $this->ajaxRender(json_encode([
+                'success' => false,
+                'code' => 303,
+                'message' => 'This payment method is not available.'
+            ]));
+            die;
         }
 
-        $this->checkoutProcess
-            ->addStep(new CheckoutPaymentStep(
-                $this->context,
-                $translator,
-                new PaymentOptionsFinder(),
-                new ConditionsToApproveFinder(
-                    $this->context,
-                    $translator
-                )
-            ));
+        $customer = new Customer($cart->id_customer);
+        if (!Validate::isLoadedObject($customer)){
+            $this->ajaxRender(json_encode([
+                'success' => false,
+                'code' => 301,
+                'message' => 'payment processing failed'
+            ]));
+            die;
+        }
+
+        $currency = $this->context->currency;
+        $total = (float)$cart->getOrderTotal(true, Cart::BOTH);
+        $mailVars = array(
+            '{bankwire_owner}' => Configuration::get('BANK_WIRE_OWNER'),
+            '{bankwire_details}' => nl2br(Configuration::get('BANK_WIRE_DETAILS')),
+            '{bankwire_address}' => nl2br(Configuration::get('BANK_WIRE_ADDRESS'))
+        );
+
+        $ps_wirepayment = Module::getInstanceByName('ps_wirepayment');
+
+        $ps_wirepayment->validateOrder($cart->id, Configuration::get('PS_OS_BANKWIRE'), $total, $ps_wirepayment->displayName, NULL, $mailVars, (int)$currency->id, false, $customer->secure_key);
     }
 }
