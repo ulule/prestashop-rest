@@ -10,6 +10,7 @@
  */
 
 use PrestaShop\PrestaShop\Adapter\Product\PriceFormatter;
+use PrestaShop\PrestaShop\Adapter\Presenter\Order\OrderPresenter;
 
 require_once dirname(__FILE__) . '/../AbstractCartRESTController.php';
 
@@ -312,6 +313,10 @@ class BinshopsrestCreateorderModuleFrontController extends AbstractCartRESTContr
 
             $this->module->validateOrder($cart->id, 2, $total, $this->module->displayName, NULL, $mailVars, (int)$this->context->currency->id, false, $customer->secure_key);
 
+            $order = Order::getByCartId($cart->id);
+            $order_to_display = (new OrderPresenter())->present($order);
+
+            $psdata['order_details'] = $order_to_display;
         }else{
             $this->ajaxRender(json_encode([
                 'success' => false,
