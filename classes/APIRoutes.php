@@ -293,6 +293,24 @@ class APIRoutes
                     'module' => 'binshopsrest'
                 ]
             ],
+            'module-binshopsrest-createorder' => [
+                'rule' => 'rest/createorder',
+                'keywords' => [],
+                'controller' => 'createorder',
+                'params' => [
+                    'fc' => 'module',
+                    'module' => 'binshopsrest'
+                ]
+            ],
+            'module-binshopsrest-getorders' => [
+                'rule' => 'rest/getorders',
+                'keywords' => [],
+                'controller' => 'getorders',
+                'params' => [
+                    'fc' => 'module',
+                    'module' => 'binshopsrest'
+                ]
+            ],
         ];
     }
 }
