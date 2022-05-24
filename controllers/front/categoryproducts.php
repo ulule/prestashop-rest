@@ -307,6 +307,7 @@ class BinshopsrestCategoryproductsModuleFrontController extends AbstractProductL
                 $combinations[$index]['quantity'] = $attr['quantity'];
                 $combinations[$index]['price'] = $attr['price'];
                 $combinations[$index]['float_price'] = $attr['float_price'];
+                $combinations[$index]['weight'] = $attr['weight'];
                 $attribute_list = [];
 
                 $j = 0;
@@ -457,7 +458,6 @@ class BinshopsrestCategoryproductsModuleFrontController extends AbstractProductL
                     'name' => $row['public_group_name'],
                     'value' => $row['attribute_name'],
                 );
-                    $row['public_group_name'];
 
                 //calculate full price for combination
                 $priceDisplay = Product::getTaxCalculationMethod(0); //(int)$this->context->cookie->id_customer
@@ -469,7 +469,7 @@ class BinshopsrestCategoryproductsModuleFrontController extends AbstractProductL
                 $combinations[$row['id_product_attribute']]['price'] = $this->formatPrice($combination_price);
                 $combinations[$row['id_product_attribute']]['float_price'] = $combination_price;
                 $combinations[$row['id_product_attribute']]['quantity'] = (int)$row['quantity'];
-                $combinations[$row['id_product_attribute']]['minimal_quantity'] = (int)$row['minimal_quantity'];
+                $combinations[$row['id_product_attribute']]['weight'] = $row['weight'];
             }
 
             // wash attributes list (if some attributes are unavailables and if allowed to wash it)
