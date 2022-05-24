@@ -87,8 +87,6 @@ class BinshopsrestCategoryproductsModuleFrontController extends AbstractProductL
             );
 
             $product_detail = $this->getProduct();
-            $product_detail['groups'] = $this->assignAttributesGroups($product_detail);
-
             $new_product_list[] = $product_detail;
         }
 
@@ -300,61 +298,30 @@ class BinshopsrestCategoryproductsModuleFrontController extends AbstractProductL
         );
 
 
-        $options = array();
         $combinations = array();
         $attributes = $this->getProductAttributesGroups();
-        if (!empty($attributes['groups'])) {
+        if (!empty($attributes['variations'])) {
             $index = 0;
-            foreach ($attributes['groups'] as $grp_id => $grp) {
-                $options[$index]['id'] = $grp_id;
-                $options[$index]['title'] = $grp['name'];
-                if ($grp['group_type'] == 'color') {
-                    $options[$index]['is_color_option'] = 1;
-                } else {
-                    $options[$index]['is_color_option'] = 0;
-                }
-                $item = array();
-                foreach ($grp['attributes'] as $key => $group_item) {
-                    if ($grp['group_type'] == 'color') {
-                        $hex_value = '';
-                        if (isset($attributes['colors'][$key]['value'])) {
-                            $hex_value = $attributes['colors'][$key]['value'];
-                        }
-                        $item[] = array(
-                            'id' => $key,
-                            'value' => $group_item,
-                            'hex_value' => $hex_value
-                        );
-                    } else {
-                        $item[] = array(
-                            'id' => $key,
-                            'value' => $group_item
-                        );
-                    }
-                }
-                $options[$index]['items'] = $item;
-                $index++;
-            }
-        }
-        if (!empty($attributes['combinations'])) {
-            $index = 0;
-            foreach ($attributes['combinations'] as $attr_id => $attr) {
+            foreach ($attributes['variations'] as $attr_id => $attr) {
                 $combinations[$index]['id_product_attribute'] = $attr_id;
                 $combinations[$index]['quantity'] = $attr['quantity'];
                 $combinations[$index]['price'] = $attr['price'];
                 $combinations[$index]['float_price'] = $attr['float_price'];
-                $combinations[$index]['minimal_quantity'] = $attr['minimal_quantity'];
-                $attribute_list = '';
-                foreach ($attr['attributes'] as $attribute_id) {
-                    $attribute_list .= (int)$attribute_id . '_';
+                $attribute_list = [];
+
+                $j = 0;
+                foreach ($attr['attributes'] as $attribute_id => $opts) {
+                    $attribute_list[$j] = array(
+                        'name' => $opts['name'],
+                        'value' => $opts['value'],
+                    );
+                    $j++;
                 }
-                $attribute_list = rtrim($attribute_list, '_');
-                $combinations[$index]['combination_code'] = $attribute_list;
+                $combinations[$index]['options'] = $attribute_list;
                 $index++;
             }
         }
-        $product['combinations'] = $combinations;
-        $product['options'] = $options;
+        $product['variations'] = $combinations;
 
         $product['description'] = preg_replace('/<iframe.*?\/iframe>/i', '', $this->product->description);
         $product['description_short'] = preg_replace('/<iframe.*?\/iframe>/i', '', $this->product->description_short);
@@ -486,7 +453,11 @@ class BinshopsrestCategoryproductsModuleFrontController extends AbstractProductL
                 $r_attr = $row['id_attribute_group'];
                 $groups[$r_attr]['attributes_quantity'][$row['id_attribute']] += (int)$row['quantity'];
 
-                $combinations[$row['id_product_attribute']]['attributes'][] = (int)$row['id_attribute'];
+                $combinations[$row['id_product_attribute']]['attributes'][] = array(
+                    'name' => $row['public_group_name'],
+                    'value' => $row['attribute_name'],
+                );
+                    $row['public_group_name'];
 
                 //calculate full price for combination
                 $priceDisplay = Product::getTaxCalculationMethod(0); //(int)$this->context->cookie->id_customer
@@ -531,7 +502,7 @@ class BinshopsrestCategoryproductsModuleFrontController extends AbstractProductL
         return array(
             'groups' => $groups,
             'colors' => (count($colors)) ? $colors : false,
-            'combinations' => $combinations
+            'variations' => $combinations
         );
     }
 
