@@ -214,6 +214,7 @@ class BinshopsrestCategoryproductsModuleFrontController extends AbstractProductL
         $product['on_sale_products'] = $this->product->on_sale;
         $product['quantity'] = $this->product->quantity;
         $product['minimal_quantity'] = $this->product->minimal_quantity;
+        $product['weight'] = $this->product->weight;
         if ($this->product->out_of_stock == 1) {
             $product['allow_out_of_stock'] = "1";
         } elseif ($this->product->out_of_stock == 0) {
@@ -596,8 +597,6 @@ class BinshopsrestCategoryproductsModuleFrontController extends AbstractProductL
         $product['out_of_stock'] = (int)$this->product->out_of_stock;
         $product['new'] = (int)$this->product->new;
         $product['id_product_attribute'] = $this->getIdProductAttributeByGroupOrRequestOrDefault();
-//        $product['minimal_quantity'] = $this->getProductMinimalQuantity($product);
-//        $product['quantity_wanted'] = $this->getRequiredQuantity($product);
         $product['extraContent'] = $extraContentFinder->addParams(array('product' => $this->product))->present();
         $product['ecotax'] = Tools::convertPrice((float)$product['ecotax'], $this->context->currency, true, $this->context);
 
