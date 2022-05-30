@@ -214,17 +214,17 @@ class BinshopsrestCategoryproductsModuleFrontController extends AbstractProductL
         $product['on_sale_products'] = $this->product->on_sale;
         $product['quantity'] = $this->product->quantity;
         $product['minimal_quantity'] = $this->product->minimal_quantity;
-        $product['weight'] = $this->product->weight;
+        $product['weight'] = (float)$this->product->weight;
         if ($this->product->out_of_stock == 1) {
-            $product['allow_out_of_stock'] = "1";
+            $product['allow_out_of_stock'] = true;
         } elseif ($this->product->out_of_stock == 0) {
-            $product['allow_out_of_stock'] = "0";
+            $product['allow_out_of_stock'] = false;
         } elseif ($this->product->out_of_stock == 2) {
             $out_of_stock = Configuration::get('PS_ORDER_OUT_OF_STOCK');
             if ($out_of_stock == 1) {
-                $product['allow_out_of_stock'] = "1";
+                $product['allow_out_of_stock'] = true;
             } else {
-                $product['allow_out_of_stock'] = "0";
+                $product['allow_out_of_stock'] = false;
             }
         }
 
@@ -302,15 +302,17 @@ class BinshopsrestCategoryproductsModuleFrontController extends AbstractProductL
         $combinations = array();
         $attributes = $this->getProductAttributesGroups();
         if (!empty($attributes['variations'])) {
+            $combination_images = $this->product->getCombinationImages($this->context->language->id);
             $index = 0;
             foreach ($attributes['variations'] as $attr_id => $attr) {
                 $combinations[$index]['id_product_attribute'] = $attr_id;
                 $combinations[$index]['quantity'] = $attr['quantity'];
                 $combinations[$index]['price'] = $attr['price'];
                 $combinations[$index]['float_price'] = $attr['float_price'];
-                $combinations[$index]['weight'] = $attr['weight'];
+                $combinations[$index]['reference'] = $attr['reference'];
+                $combinations[$index]['weight'] = (float)$attr['weight'];
+                $combinations[$index]['images'] = $combination_images[$attr_id];
                 $attribute_list = [];
-
                 $j = 0;
                 foreach ($attr['attributes'] as $attribute_id => $opts) {
                     $attribute_list[$j] = array(
@@ -320,6 +322,20 @@ class BinshopsrestCategoryproductsModuleFrontController extends AbstractProductL
                     $j++;
                 }
                 $combinations[$index]['options'] = $attribute_list;
+
+                $images = [];
+                $j = 0;
+                foreach ($combination_images[$attr_id] as $image_id => $image) {
+                    $images[$j] = $this->context->link->getImageLink(
+
+                        urlencode($this->product->link_rewrite),
+                        ($this->product->id . '-' . $image['id_image']),
+                        $this->getImageType(Tools::getValue('image_type', 'large'))
+                    );
+                    $j++;
+                }
+                $combinations[$index]['images'] = $images;
+
                 $index++;
             }
         }
@@ -470,7 +486,8 @@ class BinshopsrestCategoryproductsModuleFrontController extends AbstractProductL
                 $combinations[$row['id_product_attribute']]['price'] = $this->formatPrice($combination_price);
                 $combinations[$row['id_product_attribute']]['float_price'] = $combination_price;
                 $combinations[$row['id_product_attribute']]['quantity'] = (int)$row['quantity'];
-                $combinations[$row['id_product_attribute']]['weight'] = $row['weight'];
+                $combinations[$row['id_product_attribute']]['weight'] = (float)$row['weight'];
+                $combinations[$row['id_product_attribute']]['reference'] = $row['reference'];
             }
 
             // wash attributes list (if some attributes are unavailables and if allowed to wash it)
@@ -904,7 +921,6 @@ class BinshopsrestCategoryproductsModuleFrontController extends AbstractProductL
         /** @todo (RM) should only get groups and not all declination ? */
         $attributes_groups = $this->product->getAttributesGroups($this->context->language->id);
         if (is_array($attributes_groups) && $attributes_groups) {
-            $combination_images = $this->product->getCombinationImages($this->context->language->id);
             $combination_prices_set = [];
             foreach ($attributes_groups as $k => $row) {
                 // Color management
