@@ -241,29 +241,17 @@ class BinshopsrestCategoryproductsModuleFrontController extends AbstractProductL
             if ($price_without_reduction <= 0 || !$this->product->specificPrice) {
                 $product['float_price'] = $price;
                 $product['price'] = $this->formatPrice($price);
-                $product['discount_price'] = '';
-                $product['discount_percentage'] = '';
+                $product['regular_price'] = '';
+                $product['regular_float_price'] = '';
             } else {
-                if ($this->product->specificPrice
-                    && $this->product->specificPrice['reduction_type'] == PRICE_REDUCTION_TYPE_PERCENT) {
-                    $product['discount_percentage'] = $this->product->specificPrice['reduction'] * 100;
-                } elseif ($this->product->specificPrice
-                    && $this->product->specificPrice['reduction_type'] == 'amount'
-                    && $this->product->specificPrice['reduction'] > 0) {
-                    $temp_price = (float)($this->product->specificPrice['reduction'] * 100);
-                    $percent = (float)($temp_price / $price_without_reduction);
-                    $product['discount_percentage'] = Tools::ps_round($percent);
-                    unset($temp_price);
-                }
-                $product['price'] = $this->formatPrice($price_without_reduction);
-                $product['float_price'] = $price_without_reduction;
-                $product['discount_price'] = $this->formatPrice($price);
-                $product['discount_float_price'] = $price;
+                $product['price'] = $this->formatPrice($price);
+                $product['float_price'] = $price;
+                $product['regular_price'] = $this->formatPrice($price_without_reduction);
+                $product['regular_float_price'] = $price_without_reduction;
             }
         } else {
             $product['price'] = '';
-            $product['discount_price'] = '';
-            $product['discount_percentage'] = '';
+            $product['regular_price'] = '';
         }
 
         $product['images'] = array();
@@ -309,6 +297,8 @@ class BinshopsrestCategoryproductsModuleFrontController extends AbstractProductL
                 $combinations[$index]['quantity'] = $attr['quantity'];
                 $combinations[$index]['price'] = $attr['price'];
                 $combinations[$index]['float_price'] = $attr['float_price'];
+                $combinations[$index]['regular_price'] = $attr['regular_price'];
+                $combinations[$index]['regular_float_price'] = $attr['regular_float_price'];
                 $combinations[$index]['reference'] = $attr['reference'];
                 $combinations[$index]['weight'] = (float)$attr['weight'];
                 $combinations[$index]['images'] = $combination_images[$attr_id];
@@ -346,7 +336,7 @@ class BinshopsrestCategoryproductsModuleFrontController extends AbstractProductL
 
         $product['reference'] = $this->product->reference;
         $product['category_name'] = $this->product->category;
-        $product['manufacturer_name'] = $this->product->manufacturer_name;
+        $product['manufacturer_name'] = (empty($this->product->manufacturer_name) ? "" : $this->product->manufacturer_name);
 
         /*end:changes made by aayushi on 1 DEC 2018 to add Short Description on product page*/
         $product_info = array();
@@ -480,11 +470,22 @@ class BinshopsrestCategoryproductsModuleFrontController extends AbstractProductL
                 $priceDisplay = Product::getTaxCalculationMethod(0); //(int)$this->context->cookie->id_customer
                 if (!$priceDisplay || $priceDisplay == 2) {
                     $combination_price = $this->product->getPrice(true, $row['id_product_attribute']);
+                    $combination_price_without_reduction = $this->product->getPriceWithoutReduct(false, $row['id_product_attribute']);
                 } else {
                     $combination_price = $this->product->getPrice(false, $row['id_product_attribute']);
+                    $combination_price_without_reduction = $this->product->getPriceWithoutReduct(true, $row['id_product_attribute']);
                 }
-                $combinations[$row['id_product_attribute']]['price'] = $this->formatPrice($combination_price);
-                $combinations[$row['id_product_attribute']]['float_price'] = $combination_price;
+                if ($combination_price_without_reduction <= 0 || !$this->product->specificPrice) {
+                    $combinations[$row['id_product_attribute']]['price'] = $this->formatPrice($combination_price);
+                    $combinations[$row['id_product_attribute']]['float_price'] = $combination_price;
+                    $combinations[$row['id_product_attribute']]['regular_price'] = '';
+                    $combinations[$row['id_product_attribute']]['regular_float_price'] = '';
+                } else {
+                    $combinations[$row['id_product_attribute']]['price'] = $this->formatPrice($combination_price);
+                    $combinations[$row['id_product_attribute']]['float_price'] = $combination_price;
+                    $combinations[$row['id_product_attribute']]['regular_price'] = $this->formatPrice($combination_price_without_reduction);
+                    $combinations[$row['id_product_attribute']]['regular_float_price'] = $combination_price_without_reduction;
+                }
                 $combinations[$row['id_product_attribute']]['quantity'] = (int)$row['quantity'];
                 $combinations[$row['id_product_attribute']]['weight'] = (float)$row['weight'];
                 $combinations[$row['id_product_attribute']]['reference'] = $row['reference'];
