@@ -288,12 +288,14 @@ class BinshopsrestCategoryproductsModuleFrontController extends AbstractProductL
 
 
         $combinations = array();
+        $combinationsIDS = array();
         $attributes = $this->getProductAttributesGroups();
         if (!empty($attributes['variations'])) {
             $combination_images = $this->product->getCombinationImages($this->context->language->id);
             $index = 0;
             foreach ($attributes['variations'] as $attr_id => $attr) {
-                $combinations[$index]['id_product_attribute'] = $attr_id;
+                $combinationsIDS[$index] = $attr_id;
+                $combinations[$index]['id_product_attribute'] = (string)$this->product->id . "_" . (string)$attr_id;
                 $combinations[$index]['quantity'] = $attr['quantity'];
                 $combinations[$index]['price'] = $attr['price'];
                 $combinations[$index]['float_price'] = $attr['float_price'];
@@ -301,7 +303,6 @@ class BinshopsrestCategoryproductsModuleFrontController extends AbstractProductL
                 $combinations[$index]['regular_float_price'] = $attr['regular_float_price'];
                 $combinations[$index]['reference'] = $attr['reference'];
                 $combinations[$index]['weight'] = (float)$attr['weight'];
-                $combinations[$index]['images'] = $combination_images[$attr_id];
                 $attribute_list = [];
                 $j = 0;
                 foreach ($attr['attributes'] as $attribute_id => $opts) {
@@ -313,23 +314,20 @@ class BinshopsrestCategoryproductsModuleFrontController extends AbstractProductL
                 }
                 $combinations[$index]['options'] = $attribute_list;
 
-                $images = [];
-                $j = 0;
                 foreach ($combination_images[$attr_id] as $image_id => $image) {
-                    $images[$j] = $this->context->link->getImageLink(
+                    $combinations[$index]['image']['src'] = $this->context->link->getImageLink(
 
                         urlencode($this->product->link_rewrite),
                         ($this->product->id . '-' . $image['id_image']),
                         $this->getImageType(Tools::getValue('image_type', 'large'))
                     );
-                    $j++;
+                    break;
                 }
-                $combinations[$index]['images'] = $images;
-
                 $index++;
             }
         }
         $product['variations'] = $combinations;
+        $product['variations_ids'] = $combinationsIDS;
 
         $product['description'] = preg_replace('/<iframe.*?\/iframe>/i', '', $this->product->description);
         $product['description_short'] = preg_replace('/<iframe.*?\/iframe>/i', '', $this->product->description_short);
