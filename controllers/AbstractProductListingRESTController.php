@@ -152,33 +152,28 @@ abstract class AbstractProductListingRESTController extends ProductListingFrontC
             $result
         );
 
-        // prepare the sort orders
-        // note that, again, the product controller is sort-orders
-        // agnostic
-        // a module can easily add specific sort orders that it needs
-        // to support (e.g. sort by "energy efficiency")
-        $sort_orders = $this->getTemplateVarSortOrders(
-            $result->getAvailableSortOrders(),
-            $query->getSortOrder()->toString()
-        );
-
-        $sort_selected = false;
-        if (!empty($sort_orders)) {
-            foreach ($sort_orders as $order) {
-                if (isset($order['current']) && true === $order['current']) {
-                    $sort_selected = $order['label'];
-
+        $pagination["next"] = "";
+        if ($this->isArray($pagination["pages"])) {
+            foreach ($page as $pagination["pages"]) {
+                if ($page["type"] == "next") {
+                    $pagination["next"] = $page["url"];
+                    break;
+                }
+            }
+        } else {
+            foreach ($pagination["pages"] as $key => &$page) {
+                if ($page["type"] == "next") {
+                    $pagination["next"] = $page["url"];
                     break;
                 }
             }
         }
+        unset($pagination["pages"]);
 
         $searchVariables = array(
             'result' => $result,
             'label' => $this->getListingLabel(),
             'products' => $products,
-            'sort_orders' => $sort_orders,
-            'sort_selected' => $sort_selected,
             'pagination' => $pagination,
             'facets' => $facets,
             'js_enabled' => $this->ajax,
@@ -191,6 +186,11 @@ abstract class AbstractProductListingRESTController extends ProductListingFrontC
         Hook::exec('actionProductSearchAfter', $searchVariables);
 
         return $searchVariables;
+    }
+
+    private function isArray(array $array)
+    {
+        return array_values($array) === $array;
     }
 
     private function getProductSearchProviderFromModules($query)

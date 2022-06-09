@@ -61,7 +61,6 @@ class BinshopsrestProductdetailModuleFrontController extends AbstractRESTControl
             if ((boolean)Tools::getValue('refresh', 0)) {
                 $product_lazy = $this->getTemplateVarProduct();
                 $product = $product_lazy->getProduct();
-                $product['groups'] = $this->assignAttributesGroups($product);
 
                 $this->ajaxRender(json_encode([
                     'psdata' => $product,
@@ -72,7 +71,6 @@ class BinshopsrestProductdetailModuleFrontController extends AbstractRESTControl
             }
 
             $product = $this->getProduct();
-            $product['groups'] = $this->assignAttributesGroups($product);
 
             $this->ajaxRender(json_encode([
                 'success' => true,
@@ -126,16 +124,17 @@ class BinshopsrestProductdetailModuleFrontController extends AbstractRESTControl
         $product['on_sale_products'] = $this->product->on_sale;
         $product['quantity'] = $this->product->quantity;
         $product['minimal_quantity'] = $this->product->minimal_quantity;
+        $product['weight'] = (float)$this->product->weight;
         if ($this->product->out_of_stock == 1) {
-            $product['allow_out_of_stock'] = "1";
+            $product['allow_out_of_stock'] = true;
         } elseif ($this->product->out_of_stock == 0) {
-            $product['allow_out_of_stock'] = "0";
+            $product['allow_out_of_stock'] = false;
         } elseif ($this->product->out_of_stock == 2) {
             $out_of_stock = Configuration::get('PS_ORDER_OUT_OF_STOCK');
             if ($out_of_stock == 1) {
-                $product['allow_out_of_stock'] = "1";
+                $product['allow_out_of_stock'] = true;
             } else {
-                $product['allow_out_of_stock'] = "0";
+                $product['allow_out_of_stock'] = false;
             }
         }
 
@@ -152,29 +151,17 @@ class BinshopsrestProductdetailModuleFrontController extends AbstractRESTControl
             if ($price_without_reduction <= 0 || !$this->product->specificPrice) {
                 $product['float_price'] = $price;
                 $product['price'] = $this->formatPrice($price);
-                $product['discount_price'] = '';
-                $product['discount_percentage'] = '';
+                $product['regular_price'] = '';
+                $product['regular_float_price'] = '';
             } else {
-                if ($this->product->specificPrice
-                    && $this->product->specificPrice['reduction_type'] == PRICE_REDUCTION_TYPE_PERCENT) {
-                    $product['discount_percentage'] = $this->product->specificPrice['reduction'] * 100;
-                } elseif ($this->product->specificPrice
-                    && $this->product->specificPrice['reduction_type'] == 'amount'
-                    && $this->product->specificPrice['reduction'] > 0) {
-                    $temp_price = (float)($this->product->specificPrice['reduction'] * 100);
-                    $percent = (float)($temp_price / $price_without_reduction);
-                    $product['discount_percentage'] = Tools::ps_round($percent);
-                    unset($temp_price);
-                }
-                $product['price'] = $this->formatPrice($price_without_reduction);
-                $product['float_price'] = $price_without_reduction;
-                $product['discount_price'] = $this->formatPrice($price);
-                $product['discount_float_price'] = $price;
+                $product['price'] = $this->formatPrice($price);
+                $product['float_price'] = $price;
+                $product['regular_price'] = $this->formatPrice($price_without_reduction);
+                $product['regular_float_price'] = $price_without_reduction;
             }
         } else {
             $product['price'] = '';
-            $product['discount_price'] = '';
-            $product['discount_percentage'] = '';
+            $product['regular_price'] = '';
         }
 
         $product['images'] = array();
@@ -210,84 +197,70 @@ class BinshopsrestProductdetailModuleFrontController extends AbstractRESTControl
         );
 
 
-        $options = array();
         $combinations = array();
+        $combinationsIDS = array();
         $attributes = $this->getProductAttributesGroups();
-        if (!empty($attributes['groups'])) {
+        if (!empty($attributes['variations'])) {
+            $combination_images = $this->product->getCombinationImages($this->context->language->id);
             $index = 0;
-            foreach ($attributes['groups'] as $grp_id => $grp) {
-                $options[$index]['id'] = $grp_id;
-                $options[$index]['title'] = $grp['name'];
-                if ($grp['group_type'] == 'color') {
-                    $options[$index]['is_color_option'] = 1;
-                } else {
-                    $options[$index]['is_color_option'] = 0;
-                }
-                $item = array();
-                foreach ($grp['attributes'] as $key => $group_item) {
-                    if ($grp['group_type'] == 'color') {
-                        $hex_value = '';
-                        if (isset($attributes['colors'][$key]['value'])) {
-                            $hex_value = $attributes['colors'][$key]['value'];
-                        }
-                        $item[] = array(
-                            'id' => $key,
-                            'value' => $group_item,
-                            'hex_value' => $hex_value
-                        );
-                    } else {
-                        $item[] = array(
-                            'id' => $key,
-                            'value' => $group_item
-                        );
-                    }
-                }
-                $options[$index]['items'] = $item;
-                $index++;
-            }
-        }
-        if (!empty($attributes['combinations'])) {
-            $index = 0;
-            foreach ($attributes['combinations'] as $attr_id => $attr) {
-                $combinations[$index]['id_product_attribute'] = $attr_id;
+            foreach ($attributes['variations'] as $attr_id => $attr) {
+                $combinationsIDS[$index] = $attr_id;
+                $combinations[$index]['id_product_attribute'] = (string)$this->product->id . "_" . (string)$attr_id;
                 $combinations[$index]['quantity'] = $attr['quantity'];
                 $combinations[$index]['price'] = $attr['price'];
                 $combinations[$index]['float_price'] = $attr['float_price'];
-                $combinations[$index]['minimal_quantity'] = $attr['minimal_quantity'];
-                $attribute_list = '';
-                foreach ($attr['attributes'] as $attribute_id) {
-                    $attribute_list .= (int)$attribute_id . '_';
+                $combinations[$index]['regular_price'] = $attr['regular_price'];
+                $combinations[$index]['regular_float_price'] = $attr['regular_float_price'];
+                $combinations[$index]['reference'] = $attr['reference'];
+                $combinations[$index]['weight'] = (float)$attr['weight'];
+                $attribute_list = [];
+                $j = 0;
+                foreach ($attr['attributes'] as $attribute_id => $opts) {
+                    $attribute_list[$j] = array(
+                        'name' => $opts['name'],
+                        'value' => $opts['value'],
+                    );
+                    $j++;
                 }
-                $attribute_list = rtrim($attribute_list, '_');
-                $combinations[$index]['combination_code'] = $attribute_list;
+                $combinations[$index]['options'] = $attribute_list;
+
+                foreach ($combination_images[$attr_id] as $image_id => $image) {
+                    $combinations[$index]['image']['src'] = $this->context->link->getImageLink(
+
+                        urlencode($this->product->link_rewrite),
+                        ($this->product->id . '-' . $image['id_image']),
+                        $this->getImageType(Tools::getValue('image_type', 'large'))
+                    );
+                    break;
+                }
                 $index++;
             }
         }
-        $product['combinations'] = $combinations;
-        $product['options'] = $options;
+        $product['variations'] = $combinations;
+        $product['variations_ids'] = $combinationsIDS;
 
         $product['description'] = preg_replace('/<iframe.*?\/iframe>/i', '', $this->product->description);
         $product['description_short'] = preg_replace('/<iframe.*?\/iframe>/i', '', $this->product->description_short);
 
         $product['reference'] = $this->product->reference;
         $product['category_name'] = $this->product->category;
-        $product['manufacturer_name'] = $this->product->manufacturer_name;
+        $product['manufacturer_name'] = (empty($this->product->manufacturer_name) ? "" : $this->product->manufacturer_name);
 
         /*end:changes made by aayushi on 1 DEC 2018 to add Short Description on product page*/
         $product_info = array();
         if ($this->product->id_manufacturer) {
             $product_info[] = array(
-                'name' => $this->l('Brand'),
+                'name' => 'Brand',
                 'value' => Manufacturer::getNameById($this->product->id_manufacturer)
             );
         }
 
         $product_info[] = array(
-            'name' => $this->l('SKU'),
+            'name' => 'SKU',
             'value' => $this->product->reference
         );
         $product_info[] = array(
-            'name' => $this->l('Condition'),
+            'name' => 'Condition',
             'value' => Tools::ucfirst($this->product->condition)
         );
 
@@ -396,19 +369,34 @@ class BinshopsrestProductdetailModuleFrontController extends AbstractRESTControl
                 $r_attr = $row['id_attribute_group'];
                 $groups[$r_attr]['attributes_quantity'][$row['id_attribute']] += (int)$row['quantity'];
 
-                $combinations[$row['id_product_attribute']]['attributes'][] = (int)$row['id_attribute'];
+                $combinations[$row['id_product_attribute']]['attributes'][] = array(
+                    'name' => $row['public_group_name'],
+                    'value' => $row['attribute_name'],
+                );
 
                 //calculate full price for combination
                 $priceDisplay = Product::getTaxCalculationMethod(0); //(int)$this->context->cookie->id_customer
                 if (!$priceDisplay || $priceDisplay == 2) {
                     $combination_price = $this->product->getPrice(true, $row['id_product_attribute']);
+                    $combination_price_without_reduction = $this->product->getPriceWithoutReduct(false, $row['id_product_attribute']);
                 } else {
                     $combination_price = $this->product->getPrice(false, $row['id_product_attribute']);
+                    $combination_price_without_reduction = $this->product->getPriceWithoutReduct(true, $row['id_product_attribute']);
                 }
-                $combinations[$row['id_product_attribute']]['price'] = $this->formatPrice($combination_price);
-                $combinations[$row['id_product_attribute']]['float_price'] = $combination_price;
+                if ($combination_price_without_reduction <= 0 || !$this->product->specificPrice) {
+                    $combinations[$row['id_product_attribute']]['price'] = $this->formatPrice($combination_price);
+                    $combinations[$row['id_product_attribute']]['float_price'] = $combination_price;
+                    $combinations[$row['id_product_attribute']]['regular_price'] = '';
+                    $combinations[$row['id_product_attribute']]['regular_float_price'] = '';
+                } else {
+                    $combinations[$row['id_product_attribute']]['price'] = $this->formatPrice($combination_price);
+                    $combinations[$row['id_product_attribute']]['float_price'] = $combination_price;
+                    $combinations[$row['id_product_attribute']]['regular_price'] = $this->formatPrice($combination_price_without_reduction);
+                    $combinations[$row['id_product_attribute']]['regular_float_price'] = $combination_price_without_reduction;
+                }
                 $combinations[$row['id_product_attribute']]['quantity'] = (int)$row['quantity'];
-                $combinations[$row['id_product_attribute']]['minimal_quantity'] = (int)$row['minimal_quantity'];
+                $combinations[$row['id_product_attribute']]['weight'] = (float)$row['weight'];
+                $combinations[$row['id_product_attribute']]['reference'] = $row['reference'];
             }
 
             // wash attributes list (if some attributes are unavailables and if allowed to wash it)
@@ -441,7 +429,7 @@ class BinshopsrestProductdetailModuleFrontController extends AbstractRESTControl
         return array(
             'groups' => $groups,
             'colors' => (count($colors)) ? $colors : false,
-            'combinations' => $combinations
+            'variations' => $combinations
         );
     }
 
