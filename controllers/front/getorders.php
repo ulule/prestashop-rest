@@ -31,33 +31,57 @@ class BinshopsrestGetordersModuleFrontController extends AbstractRESTController
             ]));
             die;
         }else{
-            $total = (int) DB::getInstance()->getValue(
-                'SELECT COUNT(id_order)
-            FROM ' . _DB_PREFIX_ . 'orders'
-            );
-            $perPage = Tools::getIsset('perPage') ? (int) Tools::getValue('perPage') : 5;
-            $page = Tools::getIsset('page') ? (int) Tools::getValue('page') : 1;
-
+            $total = 0;
+            $orders = array();
+            $perPage = Tools::getValue('perPage', 20);
+            $page = Tools::getValue('page', 1);
             $limit = $perPage;
-
             $offset = ($page - 1) * $perPage;
+            $test = array();
 
-            $orders = DB::getInstance()->executeS(
-                'SELECT id_order
-            FROM ' . _DB_PREFIX_ . 'orders
-            LIMIT ' . $limit .  '
-            OFFSET ' . $offset
-            );
+            if (Tools::getIsset('ids')) {
+                $ordersids = preg_split ("/\,/", Tools::getValue('ids'));
+                foreach($ordersids as $orderid){
+                    $order_obj = new Order($orderid);
+                    $order = (new OrderPresenter())->present($order_obj);
+                    array_push($orders, $order);
+                }
+            } else {
+                $total = (int) DB::getInstance()->getValue(
+                    'SELECT COUNT(id_order)
+                    FROM ' . _DB_PREFIX_ . 'orders
+                    WHERE reference != \'\''
+                );
+                $orders = DB::getInstance()->executeS(
+                    'SELECT id_order, reference
+                    FROM ' . _DB_PREFIX_ . 'orders
+                    WHERE reference != \'\'
+                    ORDER BY id_order DESC
+                    LIMIT ' . $limit .  '
+                    OFFSET ' . $offset
+                );
+                foreach($orders as &$order){
+                    $order_obj = new Order($order['id_order']);
+                    $order = (new OrderPresenter())->present($order_obj);
+                }
+            }
 
-            foreach($orders as &$order){
-                $order_obj = new Order($order['id_order']);
-                $order = (new OrderPresenter())->present($order_obj);
+            $next = '';
+            if (!Tools::getIsset('ids') && $total > $page * $perPage) {
+                $actual_link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+                $next = $this->change_query($actual_link, array('page'=>$page + 1));
             }
 
             $this->ajaxRender(json_encode([
                 'success' => true,
                 'code' => 200,
-                'psdata' => $orders
+                'psdata' => [
+                    'orders' => $orders,
+                    'ids' => $total,
+                    'pagination' => [
+                        'next' => $next,
+                    ]
+                ]
             ]));
             die;
         }
@@ -88,5 +112,25 @@ class BinshopsrestGetordersModuleFrontController extends AbstractRESTController
             'message' => 'delete not supported on this path'
         ]));
         die;
+    }
+
+    public function change_query( $url , $array ) {
+        $url_decomposition = parse_url ($url);
+        $cut_url = explode('?', $url);
+        $queries = array_key_exists('query',$url_decomposition)?$url_decomposition['query']:false;
+        $queries_array = array ();
+        if ($queries) {
+            $cut_queries   = explode('&', $queries);
+            foreach ($cut_queries as $k => $v) {
+                if ($v)
+                {
+                    $tmp = explode('=', $v);
+                    if (sizeof($tmp ) < 2) $tmp[1] = true;
+                    $queries_array[$tmp[0]] = urldecode($tmp[1]);
+                }
+            }
+        }
+        $newQueries = array_merge($queries_array,$array);
+        return $cut_url[0].'?'.http_build_query($newQueries);
     }
 }

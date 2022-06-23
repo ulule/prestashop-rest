@@ -37,6 +37,16 @@ class BinshopsrestCategoryproductsModuleFrontController extends AbstractProductL
 
     protected function processGetRequest()
     {
+
+        if (Tools::getValue('token') !== Configuration::get('BINSHOPSREST_API_TOKEN')){
+            $this->ajaxRender(json_encode([
+                'success' => false,
+                'code' => 340,
+                'message' => "Invalid Token"
+            ]));
+            die;
+        }
+
         if ((int)Tools::getValue('id_category')){
             $id_category = (int)Tools::getValue('id_category');
         }elseif (Tools::getValue('slug')){

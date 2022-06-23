@@ -33,6 +33,16 @@ class BinshopsrestProductdetailModuleFrontController extends AbstractRESTControl
 
     protected function processGetRequest()
     {
+
+        if (Tools::getValue('token') !== Configuration::get('BINSHOPSREST_API_TOKEN')){
+            $this->ajaxRender(json_encode([
+                'success' => false,
+                'code' => 340,
+                'message' => "Invalid Token"
+            ]));
+            die;
+        }
+
         $this->taxConfiguration = new TaxConfiguration();
 
         if (!(int)Tools::getValue('product_id', 0)) {

@@ -63,7 +63,7 @@ class BinshopsrestOrderHistoryModuleFrontController extends AbstractAuthRESTCont
                 die;
             }
         }
-        
+
         //process all orders
         $customer_orders = Order::getCustomerOrders($this->context->customer->id);
 
