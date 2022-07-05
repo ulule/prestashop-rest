@@ -1,4 +1,4 @@
-/**
+{*
 * 2007-2021 PrestaShop
 *
 * NOTICE OF LICENSE
@@ -21,7 +21,38 @@
 *  @copyright 2007-2021 PrestaShop SA
 *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
-*
-* Don't forget to prefix your containers with your own identifier
-* to avoid any conflicts with others containers.
-*/
+*}
+
+{*
+* Messages
+*}
+{if (isset($form_success)) && (count($form_success) > 0)}
+	<div class="alert alert-success">
+		<h4>{l s='Success!' mod='webhooks'}</h4>
+		<ul class="list-unstyled">
+			{foreach from=$form_success item='message'}
+				<li>{$message|escape:'htmlall':'UTF-8'}</li>
+			{/foreach}
+		</ul>
+	</div>
+{/if}
+{if (isset($form_warning)) && (count($form_warning) > 0)}
+	<div class="alert alert-warning">
+		<h4>{l s='Warning!' mod='webhooks'}</h4>
+		<ul class="list-unstyled">
+			{foreach from=$form_warning item='message'}
+				<li>{$message|escape:'htmlall':'UTF-8'}</li>
+			{/foreach}
+		</ul>
+	</div>
+{/if}
+{if (isset($form_error)) && (count($form_error) > 0)}
+	<div class="alert alert-danger">
+		<h4>{l s='Error!' mod='webhooks'}</h4>
+		<ul class="list-unstyled">
+			{foreach from=$form_error item='message'}
+				<li>{$message|escape:'htmlall':'UTF-8'}</li>
+			{/foreach}
+		</ul>
+	</div>
+{/if}

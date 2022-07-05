@@ -1,4 +1,4 @@
-/**
+{*
 * 2007-2021 PrestaShop
 *
 * NOTICE OF LICENSE
@@ -21,7 +21,6 @@
 *  @copyright 2007-2021 PrestaShop SA
 *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
-*
-* Don't forget to prefix your containers with your own identifier
-* to avoid any conflicts with others containers.
-*/
+*}
+
+<input type="number" value="{$webhooks_retries|escape:'html':'UTF-8'}" minlength="1" maxlength="2" name="WEBHOOKS_RETRIES" id="WEBHOOKS_RETRIES" class="webhook-input-number">
