@@ -153,19 +153,10 @@ abstract class AbstractProductListingRESTController extends ProductListingFrontC
         );
 
         $pagination["next"] = "";
-        if ($this->isArray($pagination["pages"])) {
-            foreach ($page as $pagination["pages"]) {
-                if ($page["type"] == "next") {
-                    $pagination["next"] = $page["url"];
-                    break;
-                }
-            }
-        } else {
-            foreach ($pagination["pages"] as $key => &$page) {
-                if ($page["type"] == "next") {
-                    $pagination["next"] = $page["url"];
-                    break;
-                }
+        foreach ($pagination["pages"] as $key => &$page) {
+            if ($page["type"] == "next") {
+                $pagination["next"] = $page["url"];
+                break;
             }
         }
         unset($pagination["pages"]);
