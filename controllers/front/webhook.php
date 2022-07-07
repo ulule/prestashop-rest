@@ -10,12 +10,21 @@
  */
 
 require_once dirname(__FILE__) . '/../AbstractRESTController.php';
-require_once(dirname(__FILE__) . '../../vendor/autoload.php');
+require_once(dirname(__FILE__) . '/../../vendor/autoload.php');
 
 class BinshopsrestWebhookModuleFrontController extends AbstractRESTController
 {
     protected function processGetRequest()
     {
+        if (Tools::getValue('token') !== Configuration::get('BINSHOPSREST_API_TOKEN')){
+            $this->ajaxRender(json_encode([
+                'success' => false,
+                'code' => 340,
+                'psdata' => "Invalid Token"
+            ]));
+            die;
+        }
+
         $page = ($page = Tools::getValue('page')) ? $page : 1;
         $pagination = ($pagination = Tools::getValue('pagination')) ? $pagination : 50;
 
@@ -30,6 +39,17 @@ class BinshopsrestWebhookModuleFrontController extends AbstractRESTController
 
     protected function processPostRequest()
     {
+        $_POST = json_decode(Tools::file_get_contents('php://input'), true);
+
+        if (Tools::getValue('token') !== Configuration::get('BINSHOPSREST_API_TOKEN')){
+            $this->ajaxRender(json_encode([
+                'success' => false,
+                'code' => 340,
+                'psdata' => "Invalid Token"
+            ]));
+            die;
+        }
+
         $url = filter_var(Tools::getValue('webhooks_url'), FILTER_SANITIZE_URL);
 
         if (empty($url) || !filter_var($url, FILTER_VALIDATE_URL)) {
@@ -74,6 +94,17 @@ class BinshopsrestWebhookModuleFrontController extends AbstractRESTController
 
     protected function processDeleteRequest()
     {
+        $_POST = json_decode(Tools::file_get_contents('php://input'), true);
+
+        if (Tools::getValue('token') !== Configuration::get('BINSHOPSREST_API_TOKEN')){
+            $this->ajaxRender(json_encode([
+                'success' => false,
+                'code' => 340,
+                'psdata' => "Invalid Token"
+            ]));
+            die;
+        }
+
         WebhookLogModel::deleteByWebhookId((int) Tools::getValue('id_webhook'));
         WebhookQueueModel::deleteByWebhookId((int) Tools::getValue('id_webhook'));
         WebhookModel::deleteById((int) Tools::getValue('id_webhook'));
