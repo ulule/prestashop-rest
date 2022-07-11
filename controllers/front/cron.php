@@ -12,7 +12,7 @@
  * @license   Proprietary and confidential
  */
 
-class BinshopsrestCronModuleFrontController extends ModuleFrontController
+class BienoubienCronModuleFrontController extends ModuleFrontController
 {
     /** @var bool If set to true, will be redirected to authentication page */
     public $auth = false;

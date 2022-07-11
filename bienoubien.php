@@ -16,7 +16,7 @@ if (!defined('_PS_VERSION_')) {
 require_once dirname(__FILE__) . '/classes/APIRoutes.php';
 require_once(dirname(__FILE__) . '/vendor/autoload.php');
 
-class Binshopsrest extends PaymentModule
+class Bienoubien extends PaymentModule
 {
     protected $config_form = false;
 
@@ -40,9 +40,9 @@ class Binshopsrest extends PaymentModule
 
     public function __construct()
     {
-        $this->name = 'binshopsrest';
-        $this->tab = 'others';
-        $this->version = '2.4.3';
+        $this->name = 'bienoubien';
+        $this->tab = 'merchandizing';
+        $this->version = '1.0.0';
         $this->author = 'Binshops';
         $this->need_instance = 0;
 
@@ -53,13 +53,12 @@ class Binshopsrest extends PaymentModule
 
         parent::__construct();
 
-        $this->displayName = $this->l('PrestaShop REST API');
-        $this->description = $this->l('This module exposes REST API endpoints for your Prestashop website.');
+        $this->displayName = $this->l('Bien ou Bien');
+        $this->description = $this->l('Ce module permet de connecter votre boutique à la place de marché Bien ou Bien');
 
         $this->confirmUninstall = $this->l('');
 
         $this->ps_versions_compliancy = array('min' => '1.7', 'max' => _PS_VERSION_);
-        $this->module_key = 'b3c3c0c41d0223b9ff10c87b8acb65f5';
     }
 
     /**

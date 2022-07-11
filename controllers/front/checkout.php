@@ -14,7 +14,7 @@ use PrestaShop\PrestaShop\Adapter\Product\PriceFormatter;
 require_once dirname(__FILE__) . '/../AbstractRESTController.php';
 
 //todo: needs to be completed
-class BinshopsrestCheckoutModuleFrontController extends AbstractRESTController
+class BienoubienCheckoutModuleFrontController extends AbstractRESTController
 {
     /**
      * @var CartChecksum

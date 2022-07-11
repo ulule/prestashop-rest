@@ -9,7 +9,7 @@
 
 require_once dirname(__FILE__) . '/../AbstractPaymentRESTController.php';
 
-class BinshopsrestPs_wirepaymentModuleFrontController extends AbstractPaymentRESTController
+class BienoubienPs_wirepaymentModuleFrontController extends AbstractPaymentRESTController
 {
     protected function processRESTPayment(){
         $cart = $this->context->cart;

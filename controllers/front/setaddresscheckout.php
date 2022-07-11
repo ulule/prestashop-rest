@@ -13,7 +13,7 @@ require_once dirname(__FILE__) . '/../AbstractAuthRESTController.php';
 
 use PrestaShop\PrestaShop\Adapter\Product\PriceFormatter;
 
-class BinshopsrestSetaddresscheckoutModuleFrontController extends AbstractAuthRESTController
+class BienoubienSetaddresscheckoutModuleFrontController extends AbstractAuthRESTController
 {
 
     protected function processGetRequest()

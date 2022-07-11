@@ -12,7 +12,7 @@
 require_once dirname(__FILE__) . '/../AbstractRESTController.php';
 require_once(dirname(__FILE__) . '/../../vendor/autoload.php');
 
-class BinshopsrestWebhookModuleFrontController extends AbstractRESTController
+class BienoubienWebhookModuleFrontController extends AbstractRESTController
 {
     protected function processGetRequest()
     {

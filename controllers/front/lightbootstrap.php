@@ -19,7 +19,7 @@ use PrestaShop\PrestaShop\Adapter\ObjectPresenter;
  * Description: This class bootstraps the main page of the application
  * */
 
-class BinshopsrestLightbootstrapModuleFrontController extends AbstractRESTController
+class BienoubienLightbootstrapModuleFrontController extends AbstractRESTController
 {
     protected $banner;
 

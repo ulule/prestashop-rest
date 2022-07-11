@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <module>
-    <name>binshopsrest</name>
+    <name>bienoubien</name>
     <displayName><![CDATA[Binshops REST API - Pro Version]]></displayName>
     <version><![CDATA[2.1.4]]></version>
     <description><![CDATA[This module exposes REST API endpoints for your Prestashop website.]]></description>

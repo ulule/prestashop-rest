@@ -14,7 +14,7 @@ require_once dirname(__FILE__) . '/../AbstractRESTController.php';
 
 use PrestaShop\PrestaShop\Adapter\Presenter\Order\OrderPresenter;
 
-class BinshopsrestGetordersModuleFrontController extends AbstractRESTController
+class BienoubienGetordersModuleFrontController extends AbstractRESTController
 {
     protected function processGetRequest()
     {

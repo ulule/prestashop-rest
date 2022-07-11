@@ -11,7 +11,7 @@
 
 require_once dirname(__FILE__) . '/../AbstractRESTController.php';
 
-class BinshopsrestAddressformModuleFrontController extends AbstractRESTController
+class BienoubienAddressformModuleFrontController extends AbstractRESTController
 {
 
     protected function processGetRequest()

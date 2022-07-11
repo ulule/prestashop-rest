@@ -22,7 +22,7 @@ use PrestaShop\PrestaShop\Core\Product\Search\SortOrder;
  *
  * This module can be used to search through products
  */
-class BinshopsrestProductsearchModuleFrontController extends AbstractProductListingRESTController
+class BienoubienProductsearchModuleFrontController extends AbstractProductListingRESTController
 {
     protected $search_string;
     protected $search_tag;

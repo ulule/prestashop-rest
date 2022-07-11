@@ -15,7 +15,7 @@ use PrestaShop\Module\ProductComment\Repository\ProductCommentRepository;
 
 require_once dirname(__FILE__) . '/../AbstractRESTController.php';
 
-class BinshopsrestPostcommentModuleFrontController extends AbstractRESTController
+class BienoubienPostcommentModuleFrontController extends AbstractRESTController
 {
 
     protected function processGetRequest(){

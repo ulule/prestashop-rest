@@ -11,7 +11,7 @@
 
 require_once dirname(__FILE__) . '/../AbstractRESTController.php';
 
-class BinshopsrestLogoutModuleFrontController extends AbstractRESTController
+class BienoubienLogoutModuleFrontController extends AbstractRESTController
 {
     protected function processGetRequest()
     {

@@ -16,7 +16,7 @@ use PrestaShop\PrestaShop\Adapter\Presenter\Cart\CartPresenter;
 /**
  * This REST endpoint adds a product to cart
  */
-class BinshopsrestCartModuleFrontController extends AbstractCartRESTController
+class BienoubienCartModuleFrontController extends AbstractCartRESTController
 {
     protected function processGetRequest()
     {

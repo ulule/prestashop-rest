@@ -11,7 +11,7 @@
 
 require_once dirname(__FILE__) . '/../AbstractRESTController.php';
 
-class BinshopsrestResetpasswordenterModuleFrontController extends AbstractRESTController
+class BienoubienResetpasswordenterModuleFrontController extends AbstractRESTController
 {
     private $psdata;
 

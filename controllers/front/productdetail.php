@@ -25,7 +25,7 @@ use PrestaShop\PrestaShop\Core\Product\ProductPresentationSettings;
 /**
  * This REST endpoint gets details of a product
  */
-class BinshopsrestProductdetailModuleFrontController extends AbstractRESTController
+class BienoubienProductdetailModuleFrontController extends AbstractRESTController
 {
     /** @var Product */
     private $product = null;

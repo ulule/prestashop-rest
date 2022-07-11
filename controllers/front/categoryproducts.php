@@ -29,7 +29,7 @@ use PrestaShop\PrestaShop\Core\Product\ProductPresentationSettings;
  *
  * This module can be used to get category products, pagination and faceted search
  */
-class BinshopsrestCategoryproductsModuleFrontController extends AbstractProductListingRESTController
+class BienoubienCategoryproductsModuleFrontController extends AbstractProductListingRESTController
 {
     /** @var Product */
     private $product = null;

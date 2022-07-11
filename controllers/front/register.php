@@ -9,7 +9,7 @@
 
 require_once dirname(__FILE__) . '/../AbstractRESTController.php';
 
-class BinshopsrestRegisterModuleFrontController extends AbstractRESTController
+class BienoubienRegisterModuleFrontController extends AbstractRESTController
 {
     protected function processGetRequest()
     {

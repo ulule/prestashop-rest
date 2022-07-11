@@ -19,7 +19,7 @@ use PrestaShop\PrestaShop\Core\Product\Search\ProductSearchQuery;
 use PrestaShop\PrestaShop\Core\Product\Search\SortOrder;
 use PrestaShop\PrestaShop\Core\Product\Search\SortOrderFactory;
 
-class BinshopsrestWishlistModuleFrontController extends AbstractProductListingRESTController
+class BienoubienWishlistModuleFrontController extends AbstractProductListingRESTController
 {
     public $ssl = true;
 

@@ -21,7 +21,7 @@ use PrestaShop\PrestaShop\Core\Product\Search\SortOrder;
  * This REST endpoint gets featured products list
  *
  */
-class BinshopsrestFeaturedproductsModuleFrontController extends AbstractRESTController
+class BienoubienFeaturedproductsModuleFrontController extends AbstractRESTController
 {
     protected function processGetRequest()
     {

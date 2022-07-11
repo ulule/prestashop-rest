@@ -5,7 +5,8 @@
 # PrestaShop REST API Module and Hooks
 Easily expose REST API endpoints for your Prestashop website. No configuration needed, just install and use it.
 
-## [Download the Latest version v2.4.2](https://www.binshops.com/prestashop-api)
+## Export the module
+Run the following command: `bash export.sh`
 
 ## The products that use this REST API
 <table>

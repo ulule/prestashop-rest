@@ -13,7 +13,7 @@ require_once dirname(__FILE__) . '/../AbstractRESTController.php';
 
 use PrestaShop\PrestaShop\Adapter\Product\PriceFormatter;
 
-class BinshopsrestCarriersModuleFrontController extends AbstractRESTController
+class BienoubienCarriersModuleFrontController extends AbstractRESTController
 {
 
     protected function processGetRequest()

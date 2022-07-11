@@ -14,7 +14,7 @@ use PrestaShop\PrestaShop\Adapter\Presenter\Order\OrderPresenter;
 
 require_once dirname(__FILE__) . '/../AbstractCartRESTController.php';
 
-class BinshopsrestCreateorderModuleFrontController extends AbstractCartRESTController
+class BienoubienCreateorderModuleFrontController extends AbstractCartRESTController
 {
     protected $_customer;
     protected $_billing_address;

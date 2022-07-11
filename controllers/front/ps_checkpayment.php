@@ -9,7 +9,7 @@
 
 require_once dirname(__FILE__) . '/../AbstractPaymentRESTController.php';
 
-class BinshopsrestPs_checkpaymentModuleFrontController extends AbstractPaymentRESTController
+class BienoubienPs_checkpaymentModuleFrontController extends AbstractPaymentRESTController
 {
     protected function processRESTPayment()
     {

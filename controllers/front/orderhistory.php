@@ -14,7 +14,7 @@ require_once dirname(__FILE__) . '/../AbstractAuthRESTController.php';
 
 use PrestaShop\PrestaShop\Adapter\Presenter\Order\OrderPresenter;
 
-class BinshopsrestOrderHistoryModuleFrontController extends AbstractAuthRESTController
+class BienoubienOrderHistoryModuleFrontController extends AbstractAuthRESTController
 {
     protected function processGetRequest()
     {
