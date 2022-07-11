@@ -2,8 +2,8 @@
 <img src="https://www.binshops.com/assets/img/logo-medium.png?v=1.2"/>
 </div>
 
-# PrestaShop REST API Module
-Easily expose REST API endpoints for your Prestashop website. No configuration needed, just install and use it. 
+# PrestaShop REST API Module and Hooks
+Easily expose REST API endpoints for your Prestashop website. No configuration needed, just install and use it.
 
 ## [Download the Latest version v2.4.2](https://www.binshops.com/prestashop-api)
 
@@ -36,7 +36,7 @@ You can access full documentation for REST endpoints on Postman publisher:
 https://documenter.getpostman.com/view/1491681/TzkyP1UC
 
 ### Backward Compatibility
-If your shop is running on 1.7.6.x version of PrestaShop, please check the 1.7.6.x branch. The stable version supports latest Ps version. 
+If your shop is running on 1.7.6.x version of PrestaShop, please check the 1.7.6.x branch. The stable version supports latest Ps version.
 
 ### Required Modules
 These native modules, which are already included in PrestaShop out of the box, are required to work with some endpoints.
@@ -51,14 +51,14 @@ These native modules, which are already included in PrestaShop out of the box, a
 - ps_checkpayment (Native Ps Pay by Check module)
 - blockwishlist (Native Ps Wishlist module)
 
-You can request your custom API implementation on Binshops panel - [Your Assistant - Create a Ticket](https://www.binshops.com/panel) 
+You can request your custom API implementation on Binshops panel - [Your Assistant - Create a Ticket](https://www.binshops.com/panel)
 
 ### Change Log
 - ### 2.4.x Latest Version
 - 2.4.2
   - Added attributes array in cart
 - 2.4.1
-  - Added email subscription 
+  - Added email subscription
 - 2.4.0
   - Added Wishlist endpoints
   - Added Zipcode validation
@@ -69,20 +69,20 @@ You can request your custom API implementation on Binshops panel - [Your Assista
   - Fix support for countries without state in address creation
   - Improved error handling in profile edit
 - 2.3.0
-  - Adds two payment options 
+  - Adds two payment options
   - Cart Management refactoring
-  - Returns cart items on cart update  
+  - Returns cart items on cart update
   - Returns newly created address
   - Returns user info on user login
-  - Removes unnecessary fields from registration  
+  - Removes unnecessary fields from registration
   - Product images refactor
-  - Adds attribute groups to product details  
+  - Adds attribute groups to product details
   - Check permission on address delete and order details
 - 2.2.6 changed cart management API
 - 2.2.5 product comment api - APIRoutes class
-- 2.2.4 cleaning customer info - makes gender optional - adds user info to login api 
-- 2.2.3 adds groups to product details - featured products api refactor 
+- 2.2.4 cleaning customer info - makes gender optional - adds user info to login api
+- 2.2.3 adds groups to product details - featured products api refactor
 - 2.2.2. adds light bootstrap endpoint
 - 2.2.1 some response cleaning - ability to load menu item images
-- 2.2.0 improves bootstrap api - adds id and slug to menu items 
+- 2.2.0 improves bootstrap api - adds id and slug to menu items
 - 2.x The latest stable version which includes all endpoints.

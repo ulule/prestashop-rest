@@ -311,6 +311,15 @@ class APIRoutes
                     'module' => 'binshopsrest'
                 ]
             ],
+            'module-binshopsrest-webhook' => [
+                'rule' => 'rest/webhook',
+                'keywords' => [],
+                'controller' => 'webhook',
+                'params' => [
+                    'fc' => 'module',
+                    'module' => 'binshopsrest'
+                ]
+            ],
         ];
     }
 }

@@ -21,3 +21,15 @@ foreach ($sql as $query) {
         return false;
     }
 }
+
+$sql = array();
+
+$sql[] = 'DROP TABLE IF EXISTS `'._DB_PREFIX_.'webhooks_queue`;';
+$sql[] = 'DROP TABLE IF EXISTS `'._DB_PREFIX_.'webhooks_log`;';
+$sql[] = 'DROP TABLE IF EXISTS `'._DB_PREFIX_.'webhooks`;';
+
+foreach ($sql as $query) {
+    if (Db::getInstance()->execute($query) == false) {
+        return false;
+    }
+}
