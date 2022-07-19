@@ -24,21 +24,27 @@ class BienoubienCronModuleFrontController extends ModuleFrontController
     {
         $this->ajax = 1;
 
-        if (Tools::getIsset('secure_key')) {
-            $secure_key = Configuration::get('WEBHOOKS_CRON_SECURE_KEY');
-            if (!empty($secure_key) && Tools::getValue('secure_key') === $secure_key) {
-                $webhooks = Module::getInstanceByName('webhooks');
-                if ($webhooks->active) {
-                    $webhooks->hookActionCronJob();
-                    $this->ajaxDie("SUCCESS\n");
-                } else {
-                    $this->ajaxDie("ERROR: Webhooks module is not active.\n");
-                }
-            } else {
-                $this->ajaxDie("ERROR: Wrong secure key.\n");
-            }
+        if (Tools::getValue('token') !== Configuration::get('BINSHOPSREST_API_TOKEN')){
+            $this->ajaxRender(json_encode([
+                'success' => false,
+                'code' => 340,
+                'message' => "Invalid Token"
+            ]));
+            die;
+        }
+
+        $webhooks = Module::getInstanceByName('bienoubien');
+        if ($webhooks->active) {
+            $webhooks->hookActionCronJob();
+            $this->ajaxRender(json_encode([
+                'code' => 200,
+                'success' => true
+            ]));
         } else {
-            $this->ajaxDie("ERROR: No secure key.\n");
+            $this->ajaxRender(json_encode([
+                'code' => 301,
+                'message' => 'Webhooks module is not active'
+            ]));
         }
     }
 }
