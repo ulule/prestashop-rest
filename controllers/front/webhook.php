@@ -50,24 +50,24 @@ class BienoubienWebhookModuleFrontController extends AbstractRESTController
             die;
         }
 
-        $url = filter_var(Tools::getValue('webhooks_url'), FILTER_SANITIZE_URL);
+        $url = filter_var(Tools::getValue('url'), FILTER_SANITIZE_URL);
 
         if (empty($url) || !filter_var($url, FILTER_VALIDATE_URL)) {
             $message = 'The URL is invalid';
             $code = 310;
-        } elseif (!Validate::isHookName(Tools::getValue('webhooks_hook'))) {
+        } elseif (!Validate::isHookName(Tools::getValue('hook'))) {
             $message = 'Hook name is invalid';
             $code = 320;
-        } elseif (!Validate::isUnsignedInt(Tools::getValue('webhooks_retries')) ||
-            ((int) Tools::getValue('webhooks_retries')) > 99) {
+        } elseif (!Validate::isUnsignedInt(Tools::getValue('retries')) ||
+            ((int) Tools::getValue('retries')) > 99) {
             $message = 'Please choose a retry number between 0 and 99';
             $code = 330;
         } else {
             WebhookModel::insertWebhook(
                 $url,
-                Tools::getValue('webhooks_hook'),
-                Tools::getValue('webhooks_real_time', 0),
-                (int)Tools::getValue('webhooks_retries'),
+                Tools::getValue('hook'),
+                Tools::getValue('real_time', 0),
+                (int)Tools::getValue('retries'),
                 1
             );
 
