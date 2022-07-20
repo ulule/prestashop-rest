@@ -1005,14 +1005,16 @@ class Bienoubien extends PaymentModule
         }
     }
 
-    public function hookActionCronJob()
+    public function hookActionCronJob($limit)
     {
+        $webhooks = array();
         if (Module::isInstalled($this->name)) {
             $queued = WebhookQueueModel::getAllActiveAndNonExecuted();
-
+            $i = 0;
             foreach ($queued as $queue) {
                 $webhook = WebhookModel::getById($queue['id_webhook']);
                 $payload = Tools::jsonDecode($queue['payload']);
+                array_push($webhooks, $queue);
                 WebhookQueueModel::incrementRetry($queue['id_queue']);
                 try {
                     $this->makeRequest($webhook, $payload);
@@ -1020,8 +1022,13 @@ class Bienoubien extends PaymentModule
                 } catch (Exception $e) {
                     PrestaShopLogger::addLog(var_export($e, true), 1);
                 }
+                $i++;
+                if ($i >= $limit) {
+                    break;
+                }
             }
         }
+        return $webhooks;
     }
 
     /** ------------------------------------------------------------------------ */

@@ -22,7 +22,10 @@ class BienoubienCronModuleFrontController extends ModuleFrontController
 
     public function display()
     {
+        header('Content-Type: ' . "application/json");
         $this->ajax = 1;
+
+        $limit = Tools::getValue('limit', 20);
 
         if (Tools::getValue('token') !== Configuration::get('BINSHOPSREST_API_TOKEN')){
             $this->ajaxRender(json_encode([
@@ -35,8 +38,9 @@ class BienoubienCronModuleFrontController extends ModuleFrontController
 
         $webhooks = Module::getInstanceByName('bienoubien');
         if ($webhooks->active) {
-            $webhooks->hookActionCronJob();
+            $results = $webhooks->hookActionCronJob($limit);
             $this->ajaxRender(json_encode([
+                'psdata' => $results,
                 'code' => 200,
                 'success' => true
             ]));
