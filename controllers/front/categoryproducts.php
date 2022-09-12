@@ -100,11 +100,6 @@ class BienoubienCategoryproductsModuleFrontController extends AbstractProductLis
             $new_product_list[] = $product_detail;
         }
 
-        $facets = array();
-        foreach ($variables['facets']['filters']->getFacets() as $facet) {
-            array_push($facets, $facet->toArray());
-        }
-
         $psdata = [
             'description' => $this->category->description,
             'active' => $this->category->active,
@@ -117,7 +112,6 @@ class BienoubienCategoryproductsModuleFrontController extends AbstractProductLis
             'sort_orders' => $variables['sort_orders'],
             'sort_selected' => $variables['sort_selected'],
             'pagination' => $variables['pagination'],
-            'facets' => $facets
         ];
 
         if (Tools::getValue('with_category_tree')){
