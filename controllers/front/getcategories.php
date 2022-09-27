@@ -16,22 +16,29 @@ use PrestaShop\PrestaShop\Adapter\Presenter\Order\OrderPresenter;
 class BienoubienGetcategoriesModuleFrontController extends AbstractRESTController
 {
     protected function processGetRequest(){
-        $root_categories = Category::getHomeCategories($this->context->language->id);
+        if (Tools::getValue('total_number')){
+            $this->ajaxRender(json_encode([
+                'success' => true,
+                'code' => 200,
+                'psdata' => count($this->getTopLevelCategories($this->context->language->id))
+            ]));
+            die;
+        }
+
+        $page = Tools::getValue('page');
+        $resultsPerPage = Tools::getValue('resultsPerPage');
+
+        $start = (($page -1) * $resultsPerPage);
+        $limit = $resultsPerPage;
+
+        $root_categories = $this->getTopLevelCategories($this->context->language->id, true, false, $start, $limit);
         $result = array();
 
         foreach ($root_categories as $category){
-            $root_node = $this->makeNode([
-                'label' => null,
-                'type' => 'root_categories',
-                'children' => [],
-            ]);
-
             $categories = $this->generateCategoriesMenu(
                 Category::getNestedCategories((int)$category['id_category'], $this->context->language->id, false)
             );
-            $root_node['children'] = array_merge($root_node['children'], $categories);
-
-            $result[] = $root_node;
+            $result = array_merge($result, $categories);
         }
 
         $this->ajaxRender(json_encode([
@@ -40,6 +47,31 @@ class BienoubienGetcategoriesModuleFrontController extends AbstractRESTControlle
             'psdata' => $result
         ]));
         die;
+    }
+
+    protected function getTopLevelCategories($idLang, $active = true, $idShop = false, $start = 0, $limit = 0){
+        $idParent = Configuration::get('PS_HOME_CATEGORY');
+        if (!Validate::isBool($active)) {
+            die(Tools::displayError());
+        }
+
+        $cacheId = 'Category::getChildren_' . (int) $idParent . '-' . (int) $idLang . '-' . (bool) $active . '-' . (int) $idShop;
+        if (!Cache::isStored($cacheId)) {
+            $query = 'SELECT c.`id_category`, cl.`name`, cl.`link_rewrite`, category_shop.`id_shop`
+			FROM `' . _DB_PREFIX_ . 'category` c
+			LEFT JOIN `' . _DB_PREFIX_ . 'category_lang` cl ON (c.`id_category` = cl.`id_category`' . Shop::addSqlRestrictionOnLang('cl') . ')
+			' . Shop::addSqlAssociation('category', 'c') . '
+			WHERE `id_lang` = ' . (int) $idLang . '
+			AND c.`id_parent` = ' . (int) $idParent . '
+			' . ($active ? 'AND `active` = 1' : '') . '
+			GROUP BY c.`id_category`
+			ORDER BY category_shop.`position` ASC ' . ($limit > 0 ? ' LIMIT ' . (int) $start . ',' . (int) $limit : '');
+            $result = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($query);
+            Cache::store($cacheId, $result);
+
+            return $result;
+        }
+        return Cache::retrieve($cacheId);
     }
 
     protected function generateCategoriesMenu($categories, $is_children = 0)
