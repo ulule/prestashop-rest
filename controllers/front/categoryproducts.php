@@ -35,6 +35,10 @@ class BienoubienCategoryproductsModuleFrontController extends AbstractProductLis
     private $product = null;
     private $taxConfiguration;
 
+    private $img1 = 'large';
+    private $img2 = 'medium';
+    private $img3 = '_default';
+
     protected function processGetRequest()
     {
 
