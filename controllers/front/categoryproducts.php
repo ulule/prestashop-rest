@@ -113,8 +113,6 @@ class BienoubienCategoryproductsModuleFrontController extends AbstractProductLis
             ),
             'label' => $variables['label'],
             'products' => $new_product_list,
-            'sort_orders' => $variables['sort_orders'],
-            'sort_selected' => $variables['sort_selected'],
             'pagination' => $variables['pagination'],
         ];
 
