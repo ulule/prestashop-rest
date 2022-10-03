@@ -320,7 +320,7 @@ class APIRoutes
                     'module' => 'bienoubien'
                 ]
             ],
-            'module-bienoubien-webhook' => [
+            'module-bienoubien-getcategories' => [
                 'rule' => 'rest/getcategories',
                 'keywords' => [],
                 'controller' => 'getcategories',
