@@ -63,7 +63,6 @@ class BienoubienGetcategoriesModuleFrontController extends AbstractRESTControlle
 			' . Shop::addSqlAssociation('category', 'c') . '
 			WHERE `id_lang` = ' . (int) $idLang . '
 			AND c.`id_parent` = ' . (int) $idParent . '
-			' . ($active ? 'AND `active` = 1' : '') . '
 			GROUP BY c.`id_category`
 			ORDER BY category_shop.`position` ASC ' . ($limit > 0 ? ' LIMIT ' . (int) $start . ',' . (int) $limit : '');
             $result = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($query);
@@ -96,12 +95,6 @@ class BienoubienGetcategoriesModuleFrontController extends AbstractRESTControlle
             $node['url'] = $link;
             $node['type'] = 'category';
             $node['page_identifier'] = 'category-' . $category['id_category'];
-
-            /* Whenever a category is not active we shouldnt display it to customer */
-            if ((bool) $category['active'] === false) {
-                continue;
-            }
-
             $current = $this->page_name == 'category' && (int) Tools::getValue('id_category') == (int) $category['id_category'];
             $node['current'] = $current;
             $node['label'] = $category['name'];
