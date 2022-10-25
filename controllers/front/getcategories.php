@@ -25,7 +25,7 @@ class BienoubienGetcategoriesModuleFrontController extends AbstractRESTControlle
             die;
         }
 
-        $page = Tools::getValue('page');
+        $page = Tools::getValue('page', 1);
         $resultsPerPage = Tools::getValue('resultsPerPage');
 
         $start = (($page -1) * $resultsPerPage);
