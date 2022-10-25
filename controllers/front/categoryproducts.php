@@ -215,7 +215,7 @@ class BienoubienCategoryproductsModuleFrontController extends AbstractProductLis
         $product['id_product'] = $this->product->id;
         $product['name'] = $this->product->name;
         $product['available_for_order'] = $this->product->available_for_order;
-        $product['active'] = $this->product->active;
+        $product['active'] = $this->product->active == 1;
         $product['show_price'] = $this->product->show_price;
         $product['new_products'] = (isset($this->product->new) && $this->product->new == 1) ? "1" : "0";
         $product['on_sale_products'] = $this->product->on_sale;
