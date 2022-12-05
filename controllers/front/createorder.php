@@ -213,6 +213,7 @@ class BienoubienCreateorderModuleFrontController extends AbstractCartRESTControl
         $shipping_address->address2 = $this->_shipping_address['address2'];
         $shipping_address->firstname = $this->_shipping_address['first_name'];
         $shipping_address->lastname = $this->_shipping_address['last_name'];
+        $shipping_address->phone = $this->_shipping_address['phone'];
         $shipping_address->id_state = State::getIdByIso($this->_shipping_address['province'], $id_country);
 
 
