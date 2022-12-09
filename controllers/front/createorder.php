@@ -310,7 +310,16 @@ class BienoubienCreateorderModuleFrontController extends AbstractCartRESTControl
                 '{bankwire_address}' => nl2br(Configuration::get('BANK_WIRE_ADDRESS'))
             );
 
-            $this->module = Module::getInstanceByName('bienoubien');
+            $this->module = Module::getInstanceByName('binshopsrest');
+
+            if (empty($this->context->cart->getProducts())){
+                $this->ajaxRender(json_encode([
+                    'success' => false,
+                    'message' => 'Check products. The products in your request, are no longer available, cehck availabilities and quantities.',
+                    'psdata' => null,
+                ]));
+                die;
+            }
 
             $this->module->validateOrder($cart->id, 2, $total, $this->module->displayName, NULL, $mailVars, (int)$this->context->currency->id, false, $customer->secure_key);
 
