@@ -311,6 +311,15 @@ class APIRoutes
                     'module' => 'bienoubien'
                 ]
             ],
+            'module-bienoubien-search-orders' => [
+                'rule' => 'rest/search-orders',
+                'keywords' => [],
+                'controller' => 'searchorders',
+                'params' => [
+                    'fc' => 'module',
+                    'module' => 'bienoubien'
+                ]
+            ],
             'module-bienoubien-webhook' => [
                 'rule' => 'rest/webhook',
                 'keywords' => [],
