@@ -310,7 +310,7 @@ class BienoubienCreateorderModuleFrontController extends AbstractCartRESTControl
                 '{bankwire_address}' => nl2br(Configuration::get('BANK_WIRE_ADDRESS'))
             );
 
-            $this->module = Module::getInstanceByName('binshopsrest');
+            $this->module = Module::getInstanceByName('bienoubien');
 
             if (empty($this->context->cart->getProducts())){
                 $this->ajaxRender(json_encode([
