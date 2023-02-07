@@ -42,7 +42,7 @@ class Bienoubien extends PaymentModule
     {
         $this->name = 'bienoubien';
         $this->tab = 'merchandizing';
-        $this->version = '1.0.8';
+        $this->version = '1.0.10';
         $this->author = 'Binshops';
         $this->need_instance = 0;
 

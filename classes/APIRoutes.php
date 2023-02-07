@@ -338,6 +338,15 @@ class APIRoutes
                     'module' => 'bienoubien'
                 ]
             ],
+            'module-bienoubien-info' => [
+                'rule' => 'rest/getinfo',
+                'keywords' => [],
+                'controller' => 'getinfo',
+                'params' => [
+                    'fc' => 'module',
+                    'module' => 'bienoubien'
+                ]
+            ],
         ];
     }
 }
