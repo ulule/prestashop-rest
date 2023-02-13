@@ -321,9 +321,9 @@ class BienoubienCreateorderModuleFrontController extends AbstractCartRESTControl
                 die;
             }
 
-            $this->module->validateOrder($cart->id, 2, $total, $this->module->displayName, NULL, $mailVars, (int)$this->context->currency->id, false, $customer->secure_key);
+            $this->module->validateOrder($cart->id, Configuration::get('PS_OS_PAYMENT'), $total, $this->module->displayName, NULL, $mailVars, (int)$this->context->currency->id, false, $customer->secure_key);
 
-            $order = Order::getByCartId($cart->id);
+            $order = new Order($cart->id);
             $order_to_display = (new OrderPresenter())->present($order);
 
             $psdata['order_details'] = $order_to_display;
