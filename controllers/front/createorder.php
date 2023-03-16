@@ -79,6 +79,21 @@ class BienoubienCreateorderModuleFrontController extends AbstractCartRESTControl
          * step 1
          * create customer
          */
+        $password = 'bienoubien';
+        $customer = new Customer();
+        $authentication = $customer->getByEmail(
+            $this->_customer['email'],
+            $password
+        );
+        if ($authentication && $customer->id) {
+            $this->ajaxRender(json_encode([
+                'success' => false,
+                'code' => 303,
+                'psdata' => [],
+                'message' => 'Customer already created'
+            ]));
+            die;
+        }
         $guestAllowedCheckout = Configuration::get('PS_GUEST_CHECKOUT_ENABLED');
         $customerPresister = new CustomerPersister(
             $this->context,
@@ -90,11 +105,8 @@ class BienoubienCreateorderModuleFrontController extends AbstractCartRESTControl
         $customer->email = $this->_customer['email'];
         $customer->firstname = $this->_customer['first_name'];
         $customer->lastname = $this->_customer['last_name'];
-
         $customer->note = $this->_note;
-
-        // for later use we can fill password here
-        $password = '';
+        $password = 'bienoubien';
 
         $psdata['registered'] = $customerPresister->save($customer, $password);
 
@@ -320,10 +332,10 @@ class BienoubienCreateorderModuleFrontController extends AbstractCartRESTControl
                 ]));
                 die;
             }
-
-            $this->module->validateOrder($cart->id, Configuration::get('PS_OS_PAYMENT'), $total, $this->module->displayName, NULL, $mailVars, (int)$this->context->currency->id, false, $customer->secure_key);
+            $this->module->validateOrder($cart->id, Configuration::get('PS_OS_PAYMENT'), $total, $this->module->displayName, NULL, $mailVars, $cart->id_currency, false, $customer->secure_key);
 
             $order = new Order($cart->id);
+            $order->id_currency = $cart->id_currency;
             $order_to_display = (new OrderPresenter())->present($order);
 
             $psdata['order_details'] = $order_to_display;
