@@ -216,7 +216,7 @@ class BienoubienCreateorderModuleFrontController extends AbstractCartRESTControl
         }
 
         $shipping_address = new Address();
-        $shipping_address->alias = 'Alias';
+        $shipping_address->alias = $this->_shipping_address['company'];;
         $shipping_address->id_country = $id_country;
         $shipping_address->country = $country->name[$this->context->language->id];
         $shipping_address->postcode = $this->_shipping_address['zip'];
@@ -226,6 +226,8 @@ class BienoubienCreateorderModuleFrontController extends AbstractCartRESTControl
         $shipping_address->firstname = $this->_shipping_address['first_name'];
         $shipping_address->lastname = $this->_shipping_address['last_name'];
         $shipping_address->phone = $this->_shipping_address['phone'];
+        $shipping_address->company = $this->_shipping_address['company'];
+        $shipping_address->other = $this->_shipping_address['other'];
         $shipping_address->id_state = State::getIdByIso($this->_shipping_address['province'], $id_country);
 
 
